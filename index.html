@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survivor 50 Fantasy Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary: #c62828;
+            --accent: #fbc02d;
+            --dark: #212121;
+            --light: #f5f5f5;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Tabs Navigation */
+        .nav-tabs {
+            background: var(--dark);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 0 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .tab-btn {
+            background: #444;
+            color: #bbb;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .content-section.active { display: block; }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 2px solid #eee;
+            color: #777;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .rank { font-weight: bold; color: var(--primary); width: 40px; }
+        .score { font-weight: 800; text-align: right; font-size: 1.1rem; }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin: 2px;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay"><h2>Loading Survivor Data...</h2></div>
+
+    <header>
+        <h1>SURVIVOR 50 FANTASY</h1>
+        <p>Outwit • Outplay • Outscore</p>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab('standings')">LEADERBOARD</button>
+        <button class="tab-btn" onclick="openTab('rosters')">TEAM ROSTERS</button>
+        <button class="tab-btn" onclick="openTab('players')">PLAYER STATS</button>
+        <button class="tab-btn" onclick="openTab('rules')">SCORING MATRIX</button>
+    </nav>
+
+    <section id="standings" class="content-section active">
+        <div class="card">
+            <h2>Current Standings</h2>
+            <table id="table-standings">
+                <thead>
+                    <tr><th class="rank">#</th><th>Team Name</th><th class="score">Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="rosters" class="content-section">
+        <div class="card">
+            <h2>All Fantasy Teams</h2>
+            <input type="text" class="search-bar" id="search-teams" placeholder="Search by team name or manager..." onkeyup="filterRosters()">
+            <table id="table-rosters">
+                <thead>
+                    <tr><th>Team & Manager</th><th>Roster Breakdown</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="players" class="content-section">
+        <div class="card">
+            <h2>Contestant Performance</h2>
+            <table id="table-players">
+                <thead>
+                    <tr><th>Survivor</th><th class="score">Points Earned</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="rules" class="content-section">
+        <div class="card">
+            <h2>Scoring Matrix</h2>
+            <table id="table-rules">
+                <thead>
+                    <tr><th>Event Type</th><th class="score">Points</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <script>
+        // REPLACE THESE WITH YOUR PUBLISHED CSV LINKS
+        const URLS = {
+            teams: 'PASTE_CLEANED_TEAMS_CSV_LINK',
+            scores: 'PASTE_CLEANED_PLAYER_SCORES_CSV_LINK',
+            rules: 'PASTE_CLEANED_SCORING_RULES_CSV_LINK'
+        };
+
+        let masterData = { teams: [], players: {}, rules: [] };
+
+        async function init() {
+            try {
+                const [tRes, pRes, rRes] = await Promise.all([
+                    fetchCSV(URLS.teams),
+                    fetchCSV(URLS.scores),
+                    fetchCSV(URLS.rules)
+                ]);
+
+                // Map Players & Rules
+                pRes.forEach(r => masterData.players[r.Player.trim()] = parseFloat(r['Total Points']) || 0);
+                masterData.rules = rRes;
+
+                // Process Teams
+                masterData.teams = tRes.map(t => {
+                    const picks = [t['Pick 1'], t['Pick 2'], t['Pick 3'], t['Pick 4']];
+                    let total = 0;
+                    const roster = picks.filter(p => p).map(p => {
+                        const pts = masterData.players[p.trim()] || 0;
+                        total += pts;
+                        return { name: p.trim(), pts: pts };
+                    });
+                    return {
+                        name: t['Team Name'],
+                        owner: t['Team taken by...'],
+                        roster: roster,
+                        total: total
+                    };
+                }).filter(t => t.name).sort((a,b) => b.total - a.total);
+
+                renderAll();
+                document.getElementById('loading-overlay').style.display = 'none';
+            } catch (e) {
+                console.error(e);
+                alert("Error loading data. Check your CSV links in the script.");
+            }
+        }
+
+        function fetchCSV(url) {
+            return new Promise((res, rej) => {
+                Papa.parse(url, { download: true, header: true, complete: r => res(r.data), error: e => rej(e) });
+            });
+        }
+
+        function renderAll() {
+            // Render Standings
+            const sBody = document.querySelector('#table-standings tbody');
+            sBody.innerHTML = masterData.teams.map((t, i) => `
+                <tr><td class="rank">${i+1}</td><td><strong>${t.name}</strong><br><small>${t.owner}</small></td><td class="score">${t.total.toFixed(1)}</td></tr>
+            `).join('');
+
+            // Render Rosters
+            const rBody = document.querySelector('#table-rosters tbody');
+            rBody.innerHTML = masterData.teams.map(t => `
+                <tr>
+                    <td><strong>${t.name}</strong><br><small>${t.owner}</small></td>
+                    <td>${t.roster.map(p => `<span class="tag">${p.name}: ${p.pts}</span>`).join('')}</td>
+                </tr>
+            `).join('');
+
+            // Render Player Stats
+            const pBody = document.querySelector('#table-players tbody');
+            const sortedPlayers = Object.entries(masterData.players).sort((a,b) => b[1] - a[1]);
+            pBody.innerHTML = sortedPlayers.map(p => `
+                <tr><td>${p[0]}</td><td class="score">${p[1]}</td></tr>
+            `).join('');
+
+            // Render Rules
+            const ruleBody = document.querySelector('#table-rules tbody');
+            ruleBody.innerHTML = masterData.rules.map(r => `
+                <tr><td>${r.Event}</td><td class="score">${r['Point Value']}</td></tr>
+            `).join('');
+        }
+
+        function openTab(id) {
+            document.querySelectorAll('.content-section, .tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function filterRosters() {
+            const q = document.getElementById('search-teams').value.toLowerCase();
+            document.querySelectorAll('#table-rosters tbody tr').forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
