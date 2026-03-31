@@ -3,216 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S50 Fantasy Survivor</title>
+    <title>Survivor 50 Fantasy - v1.0</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
-        :root {
-            --primary: #c62828;
-            --accent: #fbc02d;
-            --dark: #1a1a1a;
-            --light: #f4f4f4;
-            --card: #ffffff;
-        }
-
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--light); color: var(--dark); margin: 0; padding-bottom: 80px; }
-        
-        header {
-            text-align: center;
-            padding: 30px 15px;
-            background: var(--dark);
-            color: white;
-            border-bottom: 5px solid var(--primary);
-        }
-
-        .nav-tabs {
-            background: #222;
+        body {
+            background-color: #55aaaa; /* Classic Windows Teal */
+            padding: 20px;
             display: flex;
             justify-content: center;
-            overflow-x: auto;
+            font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+        }
+
+        .main-window {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .window-body {
+            padding: 10px;
+        }
+
+        /* Tab Content Styling */
+        .tab-content {
+            display: none;
+            background: silver;
+            padding: 10px;
+            border: 1px solid #808080;
+            box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a;
+            min-height: 300px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Adjustments */
+        .table-container {
+            background: white;
+            height: 350px;
+            overflow-y: scroll;
+            border: 2px solid #808080;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
             position: sticky;
             top: 0;
-            z-index: 100;
+            background: silver;
+            text-align: left;
+            padding: 5px;
+            border: 1px solid #808080;
+            font-size: 12px;
         }
 
-        .tab-btn {
-            background: none;
-            color: #999;
-            border: none;
-            padding: 15px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            white-space: nowrap;
+        td {
+            padding: 5px;
+            border: 1px solid #dfdfdf;
+            font-size: 12px;
         }
 
-        .tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+        .pts { text-align: right; font-weight: bold; }
 
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 0.8rem; color: #888; text-transform: uppercase; padding: 10px; border-bottom: 2px solid #eee; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; }
-
-        .rank { font-weight: bold; color: var(--primary); width: 30px; }
-        .pts { text-align: right; font-weight: 800; font-size: 1.1rem; }
-        
-        .tag { display: inline-block; padding: 2px 8px; background: #eee; border-radius: 10px; font-size: 0.7rem; margin: 2px; }
-        
-        /* Floating Update Button */
-        .admin-fab {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
+        menu[role="tablist"] {
+            margin-bottom: -1px;
+            padding-left: 5px;
         }
 
-        #loading { text-align: center; margin-top: 50px; color: #666; }
+        .status-bar {
+            margin-top: 10px;
+        }
+
+        #loading-overlay {
+            text-align: center;
+            padding: 50px;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>SURVIVOR 50</h1>
-        <div style="color: var(--accent); font-weight: bold; letter-spacing: 2px;">FANTASY LEAGUE</div>
-    </header>
+<div class="window main-window">
+    <div class="title-bar">
+        <div class="title-bar-text">Survivor_Fantasy_S50.exe</div>
+        <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+        </div>
+    </div>
 
-    <nav class="nav-tabs">
-        <button class="tab-btn active" onclick="show('standings')">STANDINGS</button>
-        <button class="tab-btn" onclick="show('rosters')">ROSTERS</button>
-        <button class="tab-btn" onclick="show('players')">PLAYER PTS</button>
-        <button class="tab-btn" onclick="show('rules')">SCORING</button>
-    </nav>
+    <div class="window-body">
+        <p>System Online. Data synchronized with Fiji Headquarters.</p>
 
-    <div id="loading">Loading tribe data...</div>
+        <menu role="tablist">
+            <li role="tab" class="active" id="btn-standings"><a href="#standings" onclick="openTab('standings')">Standings</a></li>
+            <li role="tab" id="btn-rosters"><a href="#rosters" onclick="openTab('rosters')">Teams</a></li>
+            <li role="tab" id="btn-players"><a href="#players" onclick="openTab('players')">Contestants</a></li>
+            <li role="tab" id="btn-rules"><a href="#rules" onclick="openTab('rules')">Matrix</a></li>
+        </menu>
 
-    <div class="container" id="main-content" style="display:none;">
+        <div id="loading-overlay" class="tab-content active">
+            <p>Accessing database... please wait.</p>
+            <progress id="progress-bar" value="0" max="100"></progress>
+        </div>
+
         <div id="standings" class="tab-content">
-            <div class="card">
+            <div class="table-container">
                 <table>
-                    <thead><tr><th class="rank">#</th><th>Fantasy Team</th><th class="pts">Total</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">Rank</th>
+                            <th>Fantasy Team</th>
+                            <th class="pts">Points</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-standings"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="rosters" class="tab-content" style="display:none;">
-            <div class="card">
+        <div id="rosters" class="tab-content">
+            <div class="table-container">
                 <table>
-                    <thead><tr><th>Team / Manager</th><th>Roster</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Manager</th>
+                            <th>Team Name</th>
+                            <th>Picks</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-rosters"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="players" class="tab-content" style="display:none;">
-            <div class="card">
+        <div id="players" class="tab-content">
+            <div class="table-container">
                 <table>
-                    <thead><tr><th>Survivor</th><th class="pts">Points</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Survivor</th>
+                            <th class="pts">Score</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-players"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="rules" class="tab-content" style="display:none;">
-            <div class="card">
+        <div id="rules" class="tab-content">
+            <div class="table-container">
                 <table>
-                    <thead><tr><th>Event</th><th class="pts">Pts</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Scoring Event</th>
+                            <th class="pts">Value</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbody-rules"></tbody>
                 </table>
             </div>
         </div>
+
+        <div class="status-bar">
+            <p class="status-bar-field" id="sync-status">Status: Initializing</p>
+            <p class="status-bar-field" id="update-time">Ready</p>
+            <p class="status-bar-field">CPU: 16MHz</p>
+        </div>
     </div>
+</div>
 
-    <a href="YOUR_GOOGLE_FORM_URL_HERE" target="_blank" class="admin-fab">
-        <span>+</span> Update Scores
-    </a>
+<script>
+    // YOUR GOOGLE SHEET LINKS
+    const BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh1jAFCcN3wYG7/pub?';
+    
+    const URLS = {
+        scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh/pub?output=csv',
+        rules:  BASE_URL + 'gid=721824717&single=true&output=csv',
+        teams:  BASE_URL + 'gid=948259148&single=true&output=csv'
+    };
 
-    <script>
-        // Using the long ID found in your Teams/Rules links to ensure consistency
-        const BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh1jAFCcN3wYG7/pub?';
-        
-        const URLS = {
-            scores: BASE_URL + 'gid=0&single=true&output=csv', // Assumes first tab is scores
-            rules:  BASE_URL + 'gid=721824717&single=true&output=csv',
-            teams:  BASE_URL + 'gid=948259148&single=true&output=csv'
-        };
+    let masterData = { teams: [], players: {}, rules: [] };
 
-        let data = { teams: [], players: {}, rules: [] };
+    async function init() {
+        try {
+            document.getElementById('sync-status').innerText = "Status: Fetching...";
+            
+            const [s, r, t] = await Promise.all([ 
+                fetchCSV(URLS.scores), 
+                fetchCSV(URLS.rules), 
+                fetchCSV(URLS.teams) 
+            ]);
 
-        async function init() {
-            try {
-                const [s, r, t] = await Promise.all([ fetchCSV(URLS.scores), fetchCSV(URLS.rules), fetchCSV(URLS.teams) ]);
+            // Map Player Points
+            s.forEach(row => {
+                const name = row['Player'];
+                const val = parseFloat(row['Total points']);
+                if (name && name !== 'Player') masterData.players[name.trim()] = val || 0;
+            });
 
-                // Map Players
-                s.forEach(row => {
-                    const p = row['Player'] || row['Unnamed: 0'];
-                    const v = parseFloat(row['Total points'] || row['Unnamed: 1']);
-                    if(p && p !== 'Player') data.players[p.trim()] = v || 0;
+            // Map Rules
+            masterData.rules = r.filter(row => row['Event']);
+
+            // Map Teams & Calculate Live Score
+            masterData.teams = t.map(team => {
+                const picks = [team['Pick 1'], team['Pick 2'], team['Pick 3'], team['Pick 4']];
+                let teamTotal = 0;
+                const rosterNames = picks.filter(p => p).map(p => {
+                    const cleanName = p.trim();
+                    teamTotal += (masterData.players[cleanName] || 0);
+                    return cleanName;
                 });
+                return {
+                    name: team['Team Name'],
+                    manager: team['Team taken by...'],
+                    roster: rosterNames.join(', '),
+                    total: teamTotal
+                };
+            }).filter(t => t.name && t.name !== 'Team Name').sort((a,b) => b.total - a.total);
 
-                // Map Rules
-                data.rules = r.filter(row => row['Event']);
-
-                // Map Teams
-                data.teams = t.map(team => {
-                    const picks = [team['Pick 1'], team['Pick 2'], team['Pick 3'], team['Pick 4']];
-                    let total = 0;
-                    const roster = picks.filter(p => p).map(p => {
-                        const pts = data.players[p.trim()] || 0;
-                        total += pts;
-                        return { name: p.trim(), pts };
-                    });
-                    return { name: team['Team Name'], manager: team['Team taken by...'], roster, total };
-                }).filter(t => t.name && t.name !== 'Team Name').sort((a,b) => b.total - a.total);
-
-                render();
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-            } catch (e) {
-                document.getElementById('loading').innerHTML = "Error connecting to Google Sheets. Check 'Publish to Web' settings.";
-            }
+            render();
+            
+            // Hide loading, show Standings
+            document.getElementById('loading-overlay').classList.remove('active');
+            document.getElementById('standings').classList.add('active');
+            document.getElementById('sync-status').innerText = "Status: Synchronized";
+            document.getElementById('update-time').innerText = "Last update: " + new Date().toLocaleTimeString();
+            
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading-overlay').innerHTML = "<p>Fatal Error: System link broken.</p>";
         }
+    }
 
-        function fetchCSV(url) {
-            return new Promise((res, rej) => Papa.parse(url, { download: true, header: true, complete: r => res(r.data), error: e => rej(e) }));
+    function fetchCSV(url) {
+        return new Promise((res, rej) => Papa.parse(url, { download: true, header: true, complete: r => res(r.data), error: e => rej(e) }));
+    }
+
+    function render() {
+        // Leaderboard
+        document.getElementById('tbody-standings').innerHTML = masterData.teams.map((t,i) => `
+            <tr><td>${i+1}</td><td>${t.name}</td><td class="pts">${t.total.toFixed(1)}</td></tr>
+        `).join('');
+
+        // Teams
+        document.getElementById('tbody-rosters').innerHTML = masterData.teams.map(t => `
+            <tr><td>${t.manager}</td><td>${t.name}</td><td>${t.roster}</td></tr>
+        `).join('');
+
+        // Players
+        const sortedPlayers = Object.entries(masterData.players).sort((a,b) => b[1]-a[1]);
+        document.getElementById('tbody-players').innerHTML = sortedPlayers.map(p => `
+            <tr><td>${p[0]}</td><td class="pts">${p[1]}</td></tr>
+        `).join('');
+
+        // Rules
+        document.getElementById('tbody-rules').innerHTML = masterData.rules.map(r => `
+            <tr><td>${r['Event']}</td><td class="pts">${r['Pt\nValue'] || r['Point Value'] || 0}</td></tr>
+        `).join('');
+    }
+
+    function openTab(id) {
+        // Only hide things if they aren't the loading screen
+        if(document.getElementById('loading-overlay').style.display === 'none' || true) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('li[role="tab"]').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active');
         }
+    }
 
-        function render() {
-            document.getElementById('tbody-standings').innerHTML = data.teams.map((t,i) => `
-                <tr><td class="rank">${i+1}</td><td><strong>${t.name}</strong><br><small>${t.manager}</small></td><td class="pts">${t.total.toFixed(1)}</td></tr>
-            `).join('');
+    init();
+</script>
 
-            document.getElementById('tbody-rosters').innerHTML = data.teams.map(t => `
-                <tr><td><strong>${t.name}</strong></td><td>${t.roster.map(p => `<span class="tag">${p.name}</span>`).join('')}</td></tr>
-            `).join('');
-
-            document.getElementById('tbody-players').innerHTML = Object.entries(data.players).sort((a,b) => b[1]-a[1]).map(p => `
-                <tr><td>${p[0]}</td><td class="pts">${p[1]}</td></tr>
-            `).join('');
-
-            document.getElementById('tbody-rules').innerHTML = data.rules.map(r => `
-                <tr><td>${r['Event']}</td><td class="pts">${r['Pt\nValue'] || r['Point Value'] || 0}</td></tr>
-            `).join('');
-        }
-
-        function show(id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).style.display = 'block';
-            event.currentTarget.classList.add('active');
-        }
-
-        init();
-    </script>
 </body>
 </html>
