@@ -10,30 +10,29 @@
         body { background-color: #555; padding: 20px; display: flex; justify-content: center; font-family: 'Geneva', 'Chicago', sans-serif; }
         .window { width: 100%; max-width: 800px; }
         
-        /* Layout for the data */
-        .tab-content { display: none; padding: 15px; background: #fff; }
+        .tab-content { display: none; padding: 15px; background: #fff; min-height: 300px; border-top: 1px solid #000; }
         .tab-content.active { display: block; }
         
-        .standard-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .standard-table th { text-align: left; background: #eee; border: 1px solid #000; padding: 5px; font-size: 12px; }
-        .standard-table td { border: 1px solid #ccc; padding: 8px 5px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; background: #eee; border: 1px solid #000; padding: 5px; font-size: 11px; text-transform: uppercase; }
+        td { border: 1px solid #ccc; padding: 8px 5px; font-size: 13px; }
         
         .num { text-align: right; font-weight: bold; width: 60px; }
         
-        #loading-screen { text-align: center; padding: 40px; }
-        
-        /* Navigation Tabs */
-        .nav-bar { display: flex; gap: 2px; background: #ccc; padding: 5px 5px 0 5px; border-bottom: 1px solid #000; }
+        /* Mac Tab Styling */
+        .nav-bar { display: flex; gap: 2px; background: #ccc; padding: 5px 5px 0 5px; }
         .nav-btn { 
-            padding: 5px 15px; 
+            padding: 5px 12px; 
             border: 1px solid #000; 
             border-bottom: none; 
             background: #bbb; 
             cursor: pointer; 
-            font-size: 12px;
-            border-radius: 5px 5px 0 0;
+            font-size: 11px;
+            border-radius: 4px 4px 0 0;
         }
         .nav-btn.active { background: #fff; font-weight: bold; position: relative; top: 1px; }
+        
+        #loading-screen { text-align: center; padding: 50px; }
     </style>
 </head>
 <body>
@@ -41,26 +40,124 @@
 <div class="window">
     <div class="title-bar">
         <button class="close"></button>
-        <h1 class="title">Survivor_Fantasy_S50</h1>
+        <h1 class="title">Survivor_League_S50</h1>
     </div>
-
-    <div class="separator"></div>
 
     <div class="window-pane">
         <div class="nav-bar">
             <button class="nav-btn active" id="btn-standings" onclick="openTab('standings')">Standings</button>
-            <button class="nav-btn" id="btn-rosters" onclick="openTab('rosters')">Teams</button>
-            <button class="nav-btn" id="btn-players" onclick="openTab('players')">Contestants</button>
-            <button class="nav-btn" id="btn-rules" onclick="openTab('rules')">Matrix</button>
+            <button class="nav-btn" id="btn-rosters" onclick="openTab('rosters')">Rosters</button>
+            <button class="nav-btn" id="btn-players" onclick="openTab('players')">Scoring</button>
         </div>
 
         <div id="loading-screen">
-            <p>Scanning Fiji Data Centers...</p>
-            <div class="progress">
-                <div class="progress-bar" style="width: 100%"></div>
-            </div>
+            <p>Accessing Fiji Database...</p>
         </div>
 
         <div id="standings" class="tab-content">
-            <table class="standard-table">
-                <thead><tr>
+            <table>
+                <thead><tr><th>#</th><th>Manager</th><th>Team</th><th class="num">Pts</th></tr></thead>
+                <tbody id="tbody-standings"></tbody>
+            </table>
+        </div>
+
+        <div id="rosters" class="tab-content">
+            <table>
+                <thead><tr><th>Manager</th><th>Team Name</th><th>Roster</th></tr></thead>
+                <tbody id="tbody-rosters"></tbody>
+            </table>
+        </div>
+
+        <div id="players" class="tab-content">
+            <table>
+                <thead><tr><th>Survivor</th><th class="num">Points</th></tr></thead>
+                <tbody id="tbody-players"></tbody>
+            </table>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-bar-field" id="sync-text">Status: Idle</div>
+            <div class="status-bar-field" id="sync-time">Ready</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const URLS = {
+        scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh/pub?output=csv',
+        teams:  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh1jAFCcN3wYG7/pub?gid=948259148&single=true&output=csv'
+    };
+
+    let masterData = { teams: [], players: {} };
+
+    async function init() {
+        try {
+            document.getElementById('sync-text').innerText = "Status: Connecting...";
+            const [sRes, tRes] = await Promise.all([ fetchCSV(URLS.scores), fetchCSV(URLS.teams) ]);
+
+            // 1. Map Player Scores
+            sRes.forEach(row => {
+                const name = row['Player'];
+                const pts = parseFloat(row['Total points']);
+                if (name && name !== 'Player' && !isNaN(pts)) {
+                    masterData.players[name.trim()] = pts;
+                }
+            });
+
+            // 2. Map Teams & Do Math
+            masterData.teams = tRes.map(t => {
+                const picks = [t['Pick 1'], t['Pick 2'], t['Pick 3'], t['Pick 4']];
+                let teamTotal = 0;
+                const roster = picks.filter(p => p).map(p => {
+                    const clean = p.trim();
+                    teamTotal += (masterData.players[clean] || 0);
+                    return clean;
+                });
+                return {
+                    name: t['Team Name'],
+                    manager: t['Team taken by...'] || 'Unknown',
+                    roster: roster.join(', '),
+                    total: teamTotal
+                };
+            }).filter(t => t.name && t.name !== 'Team Name').sort((a,b) => b.total - a.total);
+
+            render();
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('standings').classList.add('active');
+            document.getElementById('sync-text').innerText = "Status: Online";
+            document.getElementById('sync-time').innerText = new Date().toLocaleTimeString();
+
+        } catch (e) {
+            document.getElementById('sync-text').innerText = "Status: Error";
+        }
+    }
+
+    function fetchCSV(url) {
+        return new Promise((res, rej) => Papa.parse(url, { download: true, header: true, complete: r => res(r.data), error: e => rej(e) }));
+    }
+
+    function render() {
+        document.getElementById('tbody-standings').innerHTML = masterData.teams.map((t,i) => `
+            <tr><td>${i+1}</td><td><strong>${t.manager}</strong></td><td>${t.name}</td><td class="num">${t.total.toFixed(1)}</td></tr>
+        `).join('');
+
+        document.getElementById('tbody-rosters').innerHTML = masterData.teams.map(t => `
+            <tr><td><strong>${t.manager}</strong></td><td>${t.name}</td><td>${t.roster}</td></tr>
+        `).join('');
+
+        const sorted = Object.entries(masterData.players).sort((a,b) => b[1]-a[1]);
+        document.getElementById('tbody-players').innerHTML = sorted.map(p => `
+            <tr><td>${p[0]}</td><td class="num">${p[1]}</td></tr>
+        `).join('');
+    }
+
+    function openTab(id) {
+        document.querySelectorAll('.tab-content, .nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
+    }
+
+    init();
+</script>
+</body>
+</html>
