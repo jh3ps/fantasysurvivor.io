@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivor 50 Fantasy</title>
+    <title>Survivor 50 Fantasy: Official Tracker</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
@@ -11,25 +12,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
     
     <style>
-        :root { --survivor-blue: #1f8dd6; --bg: #f9f9f9; }
+        :root { --survivor-blue: #1f8dd6; --bg: #f9f9f9; --border: #e0e0e0; }
         
-        /* GLOBAL FONT & ALIGNMENT */
         body { 
-            color: #333; 
-            background: var(--bg); 
+            color: #333; background: var(--bg); 
             font-family: 'Manrope', sans-serif; 
-            padding: 20px; 
-            line-height: 1.6;
+            padding: 20px; line-height: 1.6;
         }
         
         .container { 
-            max-width: 1100px; 
-            margin: auto; 
-            background: white; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-            min-height: 90vh; 
+            max-width: 1100px; margin: auto; background: white; 
+            padding: 40px; border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); min-height: 90vh; 
         }
 
         header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 30px; padding-bottom: 15px; text-align: center; }
@@ -42,32 +36,58 @@
         .pure-menu-link { cursor: pointer; font-weight: 600; color: #555; transition: 0.2s; border-radius: 6px; margin: 0 5px; }
         .pure-menu-selected { background: var(--survivor-blue) !important; color: white !important; }
         
-        /* TABLE CENTERING & STYLING */
-        .pure-table { width: 100%; border-collapse: collapse; }
+        /* GENERAL TABLE STYLING */
+        .pure-table { width: 100%; border-collapse: collapse; border: none; }
         .pure-table th, .pure-table td { 
-            text-align: center !important; /* CENTER ALL DATA */
+            text-align: center !important; 
             vertical-align: middle !important;
-            padding: 12px 8px !important;
+            padding: 15px 10px !important;
+            border: none;
         }
-        
+
+        /* HORIZONTAL SEPARATION BARS (Leaderboard) */
+        #leaderboard-output tr { border-bottom: 1px solid var(--border); }
+        #leaderboard-output tr:last-child { border-bottom: none; }
+
+        /* VERTICAL SEPARATION BARS (Grid Episodes) */
+        .v-bar { border-right: 1px solid var(--border) !important; }
+
         .num { font-weight: 800; color: #111; }
         .total-highlight { background-color: #f0f7ff !important; font-weight: 800; color: var(--survivor-blue); }
         .voted-out { text-decoration: line-through; color: #bbb !important; opacity: 0.6; }
-        .out-badge { background: #f0f0f0; color: #888; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-decoration: none !important; display: inline-block; margin-top: 4px;}
+        .out-badge { background: #f0f0f0; color: #888; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-block; margin-top: 4px;}
         
         /* TEAM DISPLAY */
         .team-title { font-size: 1.1em; font-weight: 800; color: var(--survivor-blue); display: block; }
         .manager-sub { font-size: 0.85em; color: #777; font-style: italic; display: block; margin-bottom: 4px; }
-        .roster-preview { font-size: 0.75em; color: #999; font-weight: 400; }
+        .roster-preview { font-size: 0.75em; color: #999; }
 
-        /* GRID HOVER TOOLTIPS */
+        /* LOG (ACTION-FIRST) STYLING */
+        .ep-header { 
+            background: #333; color: white; padding: 12px; 
+            border-radius: 6px; margin-top: 40px; font-weight: 800; 
+            text-align: center; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .action-group { 
+            margin: 20px 0; border-left: 5px solid var(--survivor-blue); 
+            padding: 10px 20px; background: #fff; text-align: left;
+        }
+        .action-label { font-weight: 800; color: var(--survivor-blue); font-size: 1.1em; }
+        .action-points { font-size: 0.7em; color: #999; font-weight: 400; text-transform: uppercase; margin-left: 10px; }
+        .action-survivors { margin-top: 8px; }
+        .action-survivors span { 
+            display: inline-block; background: #f4f4f4; padding: 4px 12px; 
+            border-radius: 20px; margin: 4px 6px 4px 0; font-size: 0.85em; font-weight: 600;
+        }
+
+        /* TOOLTIPS */
         .point-cell { position: relative; cursor: help; }
         .tooltip {
             visibility: hidden; width: 220px; background-color: #1a1a1a; color: #fff;
             text-align: left; border-radius: 8px; padding: 12px; position: absolute;
             z-index: 99; bottom: 130%; left: 50%; transform: translateX(-50%);
-            opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.8em; font-weight: 400;
-            line-height: 1.5; pointer-events: none; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            opacity: 0; transition: 0.3s; font-size: 0.8em; font-weight: 400;
+            pointer-events: none; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         .tooltip::after {
             content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px;
@@ -83,7 +103,7 @@
 
 <div class="container">
     <header>
-        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Survivor 50 Fantasy League</p>
+        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Survivor 50 Fantasy</p>
         <h1>Points Tracker</h1>
     </header>
 
@@ -96,17 +116,14 @@
     </div>
 
     <div id="standings" class="tab-content active">
-        <table class="pure-table pure-table-horizontal pure-table-striped">
+        <table class="pure-table">
             <thead><tr><th>Rank</th><th>Fantasy Team</th><th>Total Pts</th></tr></thead>
             <tbody id="leaderboard-output"></tbody>
         </table>
     </div>
 
     <div id="log" class="tab-content">
-        <table class="pure-table pure-table-horizontal">
-            <thead><tr><th>Ep</th><th>Survivor</th><th>Achievement</th><th>Pts</th></tr></thead>
-            <tbody id="log-output"></tbody>
-        </table>
+        <div id="log-output"></div>
     </div>
 
     <div id="grid" class="tab-content">
@@ -120,7 +137,6 @@
 
     <div id="admin-data">
         <div id="elimination-list">Savannah, Kyle</div>
-
         <table id="master-log-table">
             <tbody>
                 <tr><td>1</td><td>Genevieve</td><td>Idol Find + 3-Tribe Imm (1st)</td><td>6</td></tr>
@@ -225,6 +241,7 @@
             <div data-team="Jeff's Midlife Crisis" data-manager="Hunter">Devens, Ozzy, Jonathan, Q</div>
             <div data-team="The White Lotus" data-manager="Emma">Emily, Genevieve, Tiffany, Cirie</div>
             <div data-team="Rachel's Pocket Rice" data-manager="Emily R">Charlie, Kyle, Aubry, Savannah</div>
+            <div data-team="Several Means Seven" data-manager="Luke">Rizo, Angelina, Charlie, Kamilla</div>
             <div data-team="Candice? (2)" data-manager="Brittany R">Genevieve, Aubry, Charlie, Tiffany</div>
             <div data-team="Cancel Christmas!" data-manager="Luke R">Aubry, Jonathan, Joe, Jenna</div>
         </div>
@@ -236,14 +253,12 @@ const ALL_SURVIVORS = ["Jenna", "Cirie", "Ozzy", "Christian", "Devens", "Emily",
 
 function runTracker() {
     const survivorStats = {};
+    const epActions = {}; 
     const outList = document.getElementById('elimination-list').innerText.split(',').map(s => s.trim()).filter(s => s !== "");
     let maxEp = 0;
 
     const logRows = document.querySelectorAll('#master-log-table tbody tr');
-    const logOutput = document.getElementById('log-output');
-    logOutput.innerHTML = "";
-
-    [...logRows].reverse().forEach(row => {
+    [...logRows].forEach(row => {
         const c = row.cells;
         const ep = parseInt(c[0].innerText);
         const name = c[1].innerText.trim();
@@ -252,45 +267,52 @@ function runTracker() {
 
         if (!survivorStats[name]) survivorStats[name] = { total: 0, episodes: {} };
         if (!survivorStats[name].episodes[ep]) survivorStats[name].episodes[ep] = { score: 0, details: [] };
-
         survivorStats[name].total += pts;
         survivorStats[name].episodes[ep].score += pts;
         survivorStats[name].episodes[ep].details.push(`${reason} (${pts})`);
         if (ep > maxEp) maxEp = ep;
 
-        const isOut = outList.includes(name);
-        logOutput.innerHTML += `<tr class="${isOut ? 'voted-out' : ''}"><td>${ep}</td><td><strong>${name}</strong></td><td>${reason}</td><td class="num">${pts}</td></tr>`;
+        if (!epActions[ep]) epActions[ep] = {};
+        if (!epActions[ep][reason]) epActions[ep][reason] = { pts: pts, survivors: [] };
+        epActions[ep][reason].survivors.push(name);
     });
 
-    let gHead = '<tr><th>Survivor</th>';
-    for(let i=1; i<=maxEp; i++) gHead += `<th>Ep ${i}</th>`;
+    // RENDER LOG
+    const logOutput = document.getElementById('log-output');
+    logOutput.innerHTML = "";
+    Object.keys(epActions).sort((a,b) => b-a).forEach(ep => {
+        let epHtml = `<div class="ep-header">Episode ${ep}</div>`;
+        for (const [action, data] of Object.entries(epActions[ep])) {
+            const namesHtml = data.survivors.map(n => `<span class="${outList.includes(n) ? 'voted-out' : ''}">${n}</span>`).join("");
+            epHtml += `<div class="action-group"><div class="action-label">${action} <span class="action-points">+${data.pts} pts</span></div><div class="action-survivors">${namesHtml}</div></div>`;
+        }
+        logOutput.innerHTML += epHtml;
+    });
+
+    // RENDER GRID
+    let gHead = '<tr><th class="v-bar">Survivor</th>';
+    for(let i=1; i<=maxEp; i++) gHead += `<th class="v-bar">Ep ${i}</th>`;
     gHead += '<th class="total-highlight">Total</th></tr>';
     document.getElementById('grid-head').innerHTML = gHead;
 
     document.getElementById('grid-body').innerHTML = ALL_SURVIVORS.sort((a,b) => (survivorStats[b]?.total || 0) - (survivorStats[a]?.total || 0)).map(name => {
         const isOut = outList.includes(name);
         const rank = isOut ? `<span class="out-badge">${24 - outList.indexOf(name)}th</span>` : "";
-        let rowHtml = `<td class="${isOut ? 'voted-out' : ''}"><strong>${name}</strong> ${rank}</td>`;
-        
+        let rowHtml = `<td class="${isOut ? 'voted-out' : ''} v-bar"><strong>${name}</strong> ${rank}</td>`;
         for(let i=1; i<=maxEp; i++) {
             const epData = survivorStats[name]?.episodes[i];
             if (epData && epData.score > 0) {
                 const detailList = epData.details.map(d => `• ${d}`).join('<br>');
-                rowHtml += `
-                    <td class="point-cell num">
-                        ${epData.score}
-                        <div class="tooltip">
-                            <strong style="color:var(--survivor-blue)">Ep ${i} Breakdown:</strong><br>${detailList}
-                        </div>
-                    </td>`;
+                rowHtml += `<td class="point-cell num v-bar">${epData.score}<div class="tooltip"><strong style="color:var(--survivor-blue)">Ep ${i} Breakdown:</strong><br>${detailList}</div></td>`;
             } else {
-                rowHtml += `<td class="num" style="color:#eee">0</td>`;
+                rowHtml += `<td class="num v-bar" style="color:#eee">0</td>`;
             }
         }
         rowHtml += `<td class="total-highlight num">${survivorStats[name]?.total || 0}</td>`;
         return `<tr>${rowHtml}</tr>`;
     }).join('');
 
+    // RENDER LEADERBOARD
     const teams = [];
     document.querySelectorAll('#roster-data div').forEach(div => {
         const picks = div.innerText.split(',').map(p => p.trim());
