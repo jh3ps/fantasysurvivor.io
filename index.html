@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivor 50 Fantasy League</title>
+    <title>Survivor 50 Fantasy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
     <style>
-        body { color: #333; line-height: 1.6; background-color: #fcfcfc; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        header { border-bottom: 1px solid #eee; margin-bottom: 30px; padding-bottom: 10px; }
-        h1 { margin: 0; color: #1f8dd6; font-weight: 300; }
+        body { color: #333; line-height: 1.6; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; background: #fff; min-height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        header { border-bottom: 2px solid #1f8dd6; margin-bottom: 20px; padding-bottom: 10px; }
+        h1 { margin: 0; color: #1f8dd6; }
         
-        /* Navigation */
-        .pure-menu-horizontal { background: #fff; border: 1px solid #eee; border-radius: 4px; margin-bottom: 20px; }
-        .pure-menu-link:hover { background: #f8f8f8; }
-        .pure-menu-selected .pure-menu-link { background: #1f8dd6; color: white; }
+        .pure-menu-horizontal { margin-bottom: 20px; border-bottom: 1px solid #eee; }
+        .pure-menu-selected .pure-menu-link { background: #1f8dd6; color: white; border-radius: 4px 4px 0 0; }
 
-        /* Tables */
-        .pure-table { width: 100%; margin-bottom: 30px; background: white; }
-        .pure-table thead { background-color: #f2f2f2; color: #555; }
-        .num { text-align: right !important; font-family: monospace; font-size: 1.1em; }
-        
-        .tab-content { display: none; }
+        .tab-content { display: none; padding-top: 10px; }
         .tab-content.active { display: block; }
+
+        .table-wrapper { overflow-x: auto; margin-top: 10px; }
+        .pure-table { width: 100%; font-size: 0.9em; }
+        .num { text-align: right !important; font-weight: bold; }
+        .total-column { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid #1f8dd6 !important; }
         
-        footer { margin-top: 50px; font-size: 0.8em; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
-        @media (max-width: 480px) { .hide-mobile { display: none; } }
+        /* Hierarchy Styling */
+        .primary-name { font-size: 1.1em; font-weight: bold; color: #1f8dd6; display: block; }
+        .secondary-name { font-size: 0.85em; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -33,170 +32,172 @@
 <div class="container">
     <header>
         <h1>Survivor 50 Fantasy</h1>
-        <p>Live League Standings & Scoring</p>
     </header>
 
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
-            <li class="pure-menu-item pure-menu-selected" id="li-leaderboard">
-                <a href="#" class="pure-menu-link" onclick="openTab('leaderboard')">Leaderboard</a>
-            </li>
-            <li class="pure-menu-item" id="li-teams">
-                <a href="#" class="pure-menu-link" onclick="openTab('teams')">Teams</a>
-            </li>
-            <li class="pure-menu-item" id="li-scoring">
-                <a href="#" class="pure-menu-link" onclick="openTab('scoring')">Scoring</a>
-            </li>
+            <li class="pure-menu-item pure-menu-selected" id="li-standings"><a href="#" class="pure-menu-link" onclick="openTab('standings')">Leaderboard</a></li>
+            <li class="pure-menu-item" id="li-tabulation"><a href="#" class="pure-menu-link" onclick="openTab('tabulation')">Scoring History</a></li>
+            <li class="pure-menu-item" id="li-rules"><a href="#" class="pure-menu-link" onclick="openTab('rules')">Point Rules</a></li>
         </ul>
     </div>
 
-    <div id="leaderboard" class="tab-content active">
+    <div id="standings" class="tab-content active">
         <table class="pure-table pure-table-horizontal pure-table-striped">
             <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Manager</th>
-                    <th class="hide-mobile">Team Name</th>
-                    <th class="num">Total Pts</th>
-                </tr>
+                <tr><th>Rank</th><th>Fantasy Team</th><th class="num">Total Score</th></tr>
             </thead>
-            <tbody id="tbody-standings"></tbody>
+            <tbody id="leaderboard-body"></tbody>
         </table>
     </div>
 
-    <div id="teams" class="tab-content">
-        <table class="pure-table pure-table-horizontal">
-            <thead>
-                <tr>
-                    <th>Manager</th>
-                    <th>Roster</th>
-                </tr>
-            </thead>
-            <tbody id="tbody-teams"></tbody>
-        </table>
+    <div id="tabulation" class="tab-content">
+        <div class="table-wrapper">
+            <table class="pure-table pure-table-bordered">
+                <thead id="tab-head"></thead>
+                <tbody id="tab-body"></tbody>
+            </table>
+        </div>
     </div>
 
-    <div id="scoring" class="tab-content">
-        <table class="pure-table pure-table-horizontal pure-table-striped" style="max-width: 400px;">
-            <thead>
-                <tr>
-                    <th>Survivor</th>
-                    <th class="num">Individual Pts</th>
-                </tr>
-            </thead>
-            <tbody id="tbody-players"></tbody>
+    <div id="rules" class="tab-content">
+        <h3>Point Values</h3>
+        <table class="pure-table pure-table-horizontal" style="max-width: 400px;">
+            <thead><tr><th>Event</th><th class="num">Pts</th></tr></thead>
+            <tbody id="rules-body"></tbody>
         </table>
     </div>
-
-    <footer>
-        <p>Edit index.html on GitHub to update weekly scores.</p>
-    </footer>
 </div>
 
 <script>
-    /* =========================================================
-       EDIT DATA BELOW TO UPDATE THE WEBSITE
-       =========================================================
-    */
+/* ==========================================================================
+   WEEKLY UPDATE AREA - EDIT DATA HERE
+   ========================================================================== */
 
-    // 1. UPDATE SURVIVOR POINTS HERE
-    const SURVIVOR_SCORES = {
-        "Jenna": 0,
-        "Cirie": 9,
-        "Ozzy": 5,
-        "Christian": 8,
-        "Devens": 9,
-        "Aubry": 12,
-        "Kamilla": 11,
-        "Jonathan": 11,
-        "Colby": 12,
-        "Coach": 11,
-        "Genevieve": 12,
-        "Q": 6,
-        "Rizo": 12,
-        "Angelina": 7,
-        "Charlie": 11,
-        "Mike": 7,
-        "Emily": 5,
-        "Joe": 9,
-        "Tiffany": 10,
-        "Stephanie": 7,
-        "Dee": 10,
-        "Chrissy": 11,
-        "Kyle": 5,
-        "Savannah": 1
-    };
+const EPISODE_MATRIX = [
+    { name: "Jenna",     eps: [0, 0, 0] },
+    { name: "Cirie",     eps: [2, 2, 5] },
+    { name: "Ozzy",      eps: [2, 1, 2] },
+    { name: "Christian", eps: [5, 2, 1] },
+    { name: "Devens",    eps: [2, 2, 5] },
+    { name: "Aubry",     eps: [2, 4, 6] },
+    { name: "Kamilla",   eps: [3, 4, 4] },
+    { name: "Jonathan",  eps: [3, 4, 4] },
+    { name: "Colby",     eps: [3, 3, 6] },
+    { name: "Coach",     eps: [2, 3, 6] },
+    { name: "Genevieve", eps: [3, 3, 6] },
+    { name: "Q",         eps: [2, 2, 2] },
+    { name: "Rizo",      eps: [2, 4, 6] },
+    { name: "Angelina",  eps: [2, 2, 3] },
+    { name: "Charlie",   eps: [2, 3, 6] },
+    { name: "Mike",      eps: [3, 1, 3] },
+    { name: "Emily",     eps: [1, 2, 2] },
+    { name: "Joe",       eps: [1, 2, 6] },
+    { name: "Tiffany",   eps: [2, 4, 4] },
+    { name: "Stephanie", eps: [2, 2, 3] },
+    { name: "Dee",       eps: [2, 4, 4] },
+    { name: "Chrissy",   eps: [2, 3, 6] },
+    { name: "Kyle",      eps: [1, 1, 3] },
+    { name: "Savannah",  eps: [1, 0, 0] }
+];
 
-    // 2. TEAM ROSTERS (From your spreadsheet)
-    const LEAGUE_DATA = [
-        { owner: "Josh", team: "Come and Get It", picks: ["Genevieve", "Q", "Emily", "Devens"] },
-        { owner: "Ben", team: "Jeff Probst's Knife", picks: ["Colby", "Coach", "Genevieve", "Q"] },
-        { owner: "Briggs", team: "Probst Blue Ribbon", picks: ["Coach", "Stephanie", "Aubry", "Jonathan"] },
-        { owner: "Quinn", team: "The Big Jackpot", picks: ["Ozzy", "Rizo", "Q", "Christian"] },
-        { owner: "Megan", team: "Genevieve's New Group Project", picks: ["Charlie", "Genevieve", "Ozzy", "Devens"] },
-        { owner: "Kadie", team: "Rockin' the Hammock", picks: ["Charlie", "Christian", "Ozzy", "Genevieve"] },
-        { owner: "Devon", team: "Financial Analyst Emily Flippen Fan Account", picks: ["Emily", "Devens", "Cirie", "Christian"] },
-        { owner: "Samuel", team: "Q-Rona", picks: ["Kamilla", "Ozzy", "Christian", "Q"] },
-        { owner: "Zoe", team: "Run, Climb, Puzzle", picks: ["Tiffany", "Ozzy", "Kamilla", "Cirie"] },
-        { owner: "Ana", team: "B-b-b-beautiful", picks: ["Devens", "Aubry", "Kamilla", "Jonathan"] },
-        { owner: "Eric", team: "Outwit. Outplay. OutKast.", picks: ["Joe", "Q", "Jonathan", "Coach"] },
-        { owner: "CC", team: "Mike White's Fruit Flies", picks: ["Kamilla", "Genevieve", "Dee", "Emily"] },
-        { owner: "Brittany", team: "Candice? From Raro Tribe??", picks: ["Q", "Genevieve", "Charlie", "Joe"] },
-        { owner: "Nitish", team: "Got Nothing For Ya", picks: ["Devens", "Christian", "Genevieve", "Ozzy"] },
-        { owner: "Hunter", team: "Jeff's Midlife Crisis", picks: ["Devens", "Ozzy", "Jonathan", "Q"] },
-        { owner: "Emma", team: "The White Lotus Ponderosa", picks: ["Emily", "Genevieve", "Tiffany", "Cirie"] },
-        { owner: "Emily", team: "Rachel's Pocket Rice", picks: ["Charlie", "Kyle", "Aubry", "Savannah"] },
-        { owner: "Luke", team: "Several Means Seven", picks: ["Rizo", "Angelina", "Charlie", "Kamilla"] },
-        { owner: "Brittany R", team: "Candice? From Raro Tribe?? (2)", picks: ["Genevieve", "Aubry", "Charlie", "Tiffany"] },
-        { owner: "Luke R", team: "Cancel Christmas! It's Survivor Baby!", picks: ["Aubry", "Jonathan", "Joe", "Jenna"] }
-    ];
+const POINT_VALUES = [
+    { event: "Tribe Reward", pts: 1 },
+    { event: "2-Tribe Immunity", pts: 2 },
+    { event: "3-Tribe Immunity (1st)", pts: 3 },
+    { event: "3-Tribe Immunity (2nd)", pts: 2 },
+    { event: "VTEP (Pre-Merge)", pts: 1 },
+    { event: "VTEP (Post-Merge)", pts: 2 },
+    { event: "Idol Find", pts: 3 },
+    { event: "Successful Idol Play", pts: 4 },
+    { event: "Individual Reward", pts: 2 },
+    { event: "Individual Immunity", pts: 4 },
+    { event: "Win Firemaking", pts: 4 },
+    { event: "FTC Vote", pts: 2 }
+];
 
-    /* =========================================================
-       LOGIC CORE - AUTOMATICALLY CALCULATES TOTALS
-       =========================================================
-    */
+const TEAMS = [
+    { manager: "Josh", team: "Come and Get It", picks: ["Genevieve", "Q", "Emily", "Devens"] },
+    { manager: "Ben", team: "Jeff Probst's Knife", picks: ["Colby", "Coach", "Genevieve", "Q"] },
+    { manager: "Briggs", team: "Probst Blue Ribbon", picks: ["Coach", "Stephanie", "Aubry", "Jonathan"] },
+    { manager: "Quinn", team: "The Big Jackpot", picks: ["Ozzy", "Rizo", "Q", "Christian"] },
+    { manager: "Megan", team: "Genevieve's New Group Project", picks: ["Charlie", "Genevieve", "Ozzy", "Devens"] },
+    { manager: "Kadie", team: "Rockin' the Hammock", picks: ["Charlie", "Christian", "Ozzy", "Genevieve"] },
+    { manager: "Devon", team: "Emily Flippen Fan Account", picks: ["Emily", "Devens", "Cirie", "Christian"] },
+    { manager: "Samuel", team: "Q-Rona", picks: ["Kamilla", "Ozzy", "Christian", "Q"] },
+    { manager: "Zoe", team: "Run, Climb, Puzzle", picks: ["Tiffany", "Ozzy", "Kamilla", "Cirie"] },
+    { manager: "Ana", team: "B-b-b-beautiful", picks: ["Devens", "Aubry", "Kamilla", "Jonathan"] },
+    { manager: "Eric", team: "Outwit. Outplay. OutKast.", picks: ["Joe", "Q", "Jonathan", "Coach"] },
+    { manager: "CC", team: "Mike White's Fruit Flies", picks: ["Kamilla", "Genevieve", "Dee", "Emily"] },
+    { manager: "Brittany", team: "Candice? From Raro Tribe??", picks: ["Q", "Genevieve", "Charlie", "Joe"] },
+    { manager: "Nitish", team: "Got Nothing For Ya", picks: ["Devens", "Christian", "Genevieve", "Ozzy"] },
+    { manager: "Hunter", team: "Jeff's Midlife Crisis", picks: ["Devens", "Ozzy", "Jonathan", "Q"] },
+    { manager: "Emma", team: "The White Lotus Ponderosa", picks: ["Emily", "Genevieve", "Tiffany", "Cirie"] },
+    { manager: "Emily", team: "Rachel's Pocket Rice", picks: ["Charlie", "Kyle", "Aubry", "Savannah"] },
+    { manager: "Luke", team: "Several Means Seven", picks: ["Rizo", "Angelina", "Charlie", "Kamilla"] },
+    { manager: "Brittany R", team: "Candice? From Raro Tribe?? (2)", picks: ["Genevieve", "Aubry", "Charlie", "Tiffany"] },
+    { manager: "Luke R", team: "Cancel Christmas!", picks: ["Aubry", "Jonathan", "Joe", "Jenna"] }
+];
 
-    function renderSite() {
-        const standings = LEAGUE_DATA.map(t => {
-            let total = 0;
-            t.picks.forEach(p => { total += (SURVIVOR_SCORES[p] || 0); });
-            return { ...t, score: total };
-        }).sort((a, b) => b.score - a.score);
+/* ==========================================================================
+   SYSTEM LOGIC
+   ========================================================================== */
 
-        // Render Leaderboard
-        document.getElementById('tbody-standings').innerHTML = standings.map((s, i) => `
-            <tr>
-                <td>${i+1}</td>
-                <td><strong>${s.owner}</strong></td>
-                <td class="hide-mobile">${s.team}</td>
-                <td class="num">${s.score}</td>
-            </tr>
-        `).join('');
+function init() {
+    const survivorTotals = {};
+    EPISODE_MATRIX.forEach(s => {
+        survivorTotals[s.name] = s.eps.reduce((a, b) => a + b, 0);
+    });
 
-        // Render Rosters
-        document.getElementById('tbody-teams').innerHTML = standings.map(s => `
-            <tr>
-                <td><strong>${s.owner}</strong><br><small>${s.team}</small></td>
-                <td>${s.picks.join(', ')}</td>
-            </tr>
-        `).join('');
+    // Leaderboard with Swapped Hierarchy
+    const standings = TEAMS.map(t => {
+        let score = 0;
+        t.picks.forEach(p => score += (survivorTotals[p] || 0));
+        return { ...t, score };
+    }).sort((a, b) => b.score - a.score);
 
-        // Render Player Scores
-        const sortedPlayers = Object.entries(SURVIVOR_SCORES).sort((a,b) => b[1] - a[1]);
-        document.getElementById('tbody-players').innerHTML = sortedPlayers.map(p => `
-            <tr><td>${p[0]}</td><td class="num">${p[1]}</td></tr>
-        `).join('');
-    }
+    document.getElementById('leaderboard-body').innerHTML = standings.map((s, i) => 
+        `<tr>
+            <td>${i+1}</td>
+            <td>
+                <span class="primary-name">${s.team}</span>
+                <span class="secondary-name">Managed by ${s.manager}</span>
+                <div style="font-size:0.8em; margin-top:4px;">Roster: ${s.picks.join(', ')}</div>
+            </td>
+            <td class="num">${s.score}</td>
+        </tr>`
+    ).join('');
 
-    function openTab(id) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.pure-menu-item').forEach(el => el.classList.remove('pure-menu-selected'));
-        
-        document.getElementById(id).classList.add('active');
-        document.getElementById('li-' + id).classList.add('pure-menu-selected');
-    }
+    // Tabulation Header
+    const maxEps = EPISODE_MATRIX[0].eps.length;
+    let headHtml = '<tr><th>Survivor</th>';
+    for(let i=1; i<=maxEps; i++) headHtml += `<th>Ep ${i}</th>`;
+    headHtml += '<th class="total-column">Total</th></tr>';
+    document.getElementById('tab-head').innerHTML = headHtml;
 
-    renderSite();
+    // Tabulation Body
+    document.getElementById('tab-body').innerHTML = EPISODE_MATRIX.sort((a,b) => survivorTotals[b.name] - survivorTotals[a.name]).map(s => `
+        <tr>
+            <td><strong>${s.name}</strong></td>
+            ${s.eps.map(v => `<td>${v}</td>`).join('')}
+            <td class="total-column">${survivorTotals[s.name]}</td>
+        </tr>
+    `).join('');
+
+    // Rules
+    document.getElementById('rules-body').innerHTML = POINT_VALUES.map(r => 
+        `<tr><td>${r.event}</td><td class="num">${r.pts}</td></tr>`
+    ).join('');
+}
+
+function openTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pure-menu-item').forEach(m => m.classList.remove('pure-menu-selected'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('li-' + id).classList.add('pure-menu-selected');
+}
+
+init();
 </script>
 </body>
 </html>
