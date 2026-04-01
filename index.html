@@ -6,188 +6,179 @@
     <title>Survivor 50 Fantasy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
     <style>
-        body { color: #333; line-height: 1.6; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --survivor-blue: #1f8dd6; --bg: #f4f4f4; }
+        body { color: #333; line-height: 1.6; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; }
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; background: #fff; min-height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        header { border-bottom: 2px solid #1f8dd6; margin-bottom: 20px; padding-bottom: 10px; }
-        h1 { margin: 0; color: #1f8dd6; }
+        header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        h1 { margin: 0; color: var(--survivor-blue); }
         
-        .pure-menu-horizontal { margin-bottom: 20px; border-bottom: 1px solid #eee; }
-        .pure-menu-selected .pure-menu-link { background: #1f8dd6; color: white; border-radius: 4px 4px 0 0; }
+        /* Nav Tabs */
+        .pure-menu-horizontal { margin-bottom: 20px; border-bottom: 1px solid #eee; overflow-x: auto; white-space: nowrap; }
+        .pure-menu-selected .pure-menu-link { background: var(--survivor-blue); color: white; border-radius: 4px 4px 0 0; }
 
         .tab-content { display: none; padding-top: 10px; }
         .tab-content.active { display: block; }
 
+        /* Tables */
         .table-wrapper { overflow-x: auto; margin-top: 10px; }
         .pure-table { width: 100%; font-size: 0.9em; }
         .num { text-align: right !important; font-weight: bold; }
-        .total-column { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid #1f8dd6 !important; }
+        .total-column { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid var(--survivor-blue) !important; }
         
-        /* Hierarchy Styling */
-        .primary-name { font-size: 1.1em; font-weight: bold; color: #1f8dd6; display: block; }
-        .secondary-name { font-size: 0.85em; color: #666; font-style: italic; }
+        /* UI Elements */
+        .primary-name { font-size: 1.1em; font-weight: bold; color: var(--survivor-blue); display: block; }
+        .secondary-name { font-size: 0.9em; color: #666; font-style: italic; display: block; }
+        .eliminated { text-decoration: line-through; color: #999 !important; }
+        .status-tag { font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; text-transform: uppercase; vertical-align: middle; }
+        .active-tag { background: #e7f4e4; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .out-tag { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Survivor 50 Fantasy</h1>
+        <div>
+            <p style="margin:0; font-size: 0.8em; color: #888;">Season 50</p>
+            <h1>Survivor Fantasy League</h1>
+        </div>
     </header>
 
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
             <li class="pure-menu-item pure-menu-selected" id="li-standings"><a href="#" class="pure-menu-link" onclick="openTab('standings')">Leaderboard</a></li>
-            <li class="pure-menu-item" id="li-tabulation"><a href="#" class="pure-menu-link" onclick="openTab('tabulation')">Scoring History</a></li>
-            <li class="pure-menu-item" id="li-rules"><a href="#" class="pure-menu-link" onclick="openTab('rules')">Point Rules</a></li>
+            <li class="pure-menu-item" id="li-log"><a href="#" class="pure-menu-link" onclick="openTab('log')">Point Log</a></li>
+            <li class="pure-menu-item" id="li-grid"><a href="#" class="pure-menu-link" onclick="openTab('grid')">Episode Grid</a></li>
         </ul>
     </div>
 
     <div id="standings" class="tab-content active">
         <table class="pure-table pure-table-horizontal pure-table-striped">
             <thead>
-                <tr><th>Rank</th><th>Fantasy Team</th><th class="num">Total Score</th></tr>
+                <tr><th>Rank</th><th>Fantasy Team</th><th class="num">Score</th></tr>
             </thead>
             <tbody id="leaderboard-body"></tbody>
         </table>
     </div>
 
-    <div id="tabulation" class="tab-content">
-        <div class="table-wrapper">
-            <table class="pure-table pure-table-bordered">
-                <thead id="tab-head"></thead>
-                <tbody id="tab-body"></tbody>
-            </table>
-        </div>
+    <div id="log" class="tab-content">
+        <table class="pure-table pure-table-horizontal pure-table-striped">
+            <thead>
+                <tr><th>Ep</th><th>Survivor</th><th>Achievement</th><th class="num">Pts</th></tr>
+            </thead>
+            <tbody id="log-body"></tbody>
+        </table>
     </div>
 
-    <div id="rules" class="tab-content">
-        <h3>Point Values</h3>
-        <table class="pure-table pure-table-horizontal" style="max-width: 400px;">
-            <thead><tr><th>Event</th><th class="num">Pts</th></tr></thead>
-            <tbody id="rules-body"></tbody>
-        </table>
+    <div id="grid" class="tab-content">
+        <div class="table-wrapper">
+            <table class="pure-table pure-table-bordered">
+                <thead id="grid-head"></thead>
+                <tbody id="grid-body"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
 /* ==========================================================================
-   WEEKLY UPDATE AREA - EDIT DATA HERE
+   INTERNAL DATABASE
    ========================================================================== */
 
-const EPISODE_MATRIX = [
-    { name: "Jenna",     eps: [0, 0, 0] },
-    { name: "Cirie",     eps: [2, 2, 5] },
-    { name: "Ozzy",      eps: [2, 1, 2] },
-    { name: "Christian", eps: [5, 2, 1] },
-    { name: "Devens",    eps: [2, 2, 5] },
-    { name: "Aubry",     eps: [2, 4, 6] },
-    { name: "Kamilla",   eps: [3, 4, 4] },
-    { name: "Jonathan",  eps: [3, 4, 4] },
-    { name: "Colby",     eps: [3, 3, 6] },
-    { name: "Coach",     eps: [2, 3, 6] },
-    { name: "Genevieve", eps: [3, 3, 6] },
-    { name: "Q",         eps: [2, 2, 2] },
-    { name: "Rizo",      eps: [2, 4, 6] },
-    { name: "Angelina",  eps: [2, 2, 3] },
-    { name: "Charlie",   eps: [2, 3, 6] },
-    { name: "Mike",      eps: [3, 1, 3] },
-    { name: "Emily",     eps: [1, 2, 2] },
-    { name: "Joe",       eps: [1, 2, 6] },
-    { name: "Tiffany",   eps: [2, 4, 4] },
-    { name: "Stephanie", eps: [2, 2, 3] },
-    { name: "Dee",       eps: [2, 4, 4] },
-    { name: "Chrissy",   eps: [2, 3, 6] },
-    { name: "Kyle",      eps: [1, 1, 3] },
-    { name: "Savannah",  eps: [1, 0, 0] }
+// 1. SURVIVOR STATUS (Update 'active' to false when they are voted out)
+const SURVIVORS = [
+    { name: "Jenna", active: true }, { name: "Cirie", active: true },
+    { name: "Ozzy", active: true }, { name: "Christian", active: true },
+    { name: "Devens", active: true }, { name: "Aubry", active: true },
+    { name: "Kamilla", active: true }, { name: "Jonathan", active: true },
+    { name: "Colby", active: true }, { name: "Coach", active: true },
+    { name: "Genevieve", active: true }, { name: "Q", active: true },
+    { name: "Rizo", active: true }, { name: "Angelina", active: true },
+    { name: "Charlie", active: true }, { name: "Mike", active: true },
+    { name: "Emily", active: true }, { name: "Joe", active: true },
+    { name: "Tiffany", active: true }, { name: "Stephanie", active: true },
+    { name: "Dee", active: true }, { name: "Chrissy", active: true },
+    { name: "Kyle", active: true }, { name: "Savannah", active: false }
 ];
 
-const POINT_VALUES = [
-    { event: "Tribe Reward", pts: 1 },
-    { event: "2-Tribe Immunity", pts: 2 },
-    { event: "3-Tribe Immunity (1st)", pts: 3 },
-    { event: "3-Tribe Immunity (2nd)", pts: 2 },
-    { event: "VTEP (Pre-Merge)", pts: 1 },
-    { event: "VTEP (Post-Merge)", pts: 2 },
-    { event: "Idol Find", pts: 3 },
-    { event: "Successful Idol Play", pts: 4 },
-    { event: "Individual Reward", pts: 2 },
-    { event: "Individual Immunity", pts: 4 },
-    { event: "Win Firemaking", pts: 4 },
-    { event: "FTC Vote", pts: 2 }
+// 2. SCORING LOG (Add new lines here every week)
+const MASTER_LOG = [
+    { ep: 1, name: "Genevieve", reason: "3-Tribe Immunity (1st) + Merge", pts: 6 },
+    { ep: 1, name: "Joe", reason: "3-Tribe Immunity (1st) + Merge", pts: 6 },
+    { ep: 1, name: "Aubry", reason: "3-Tribe Immunity (2nd) + Merge", pts: 5 },
+    { ep: 2, name: "Aubry", reason: "3-Tribe Immunity (1st)", pts: 3 },
+    { ep: 2, name: "Christian", reason: "Individual Immunity", pts: 4 },
+    { ep: 3, name: "Cirie", reason: "Idol Find", pts: 3 },
+    { ep: 4, name: "Cirie", reason: "VTEP", pts: 1 } // Example for next week
 ];
 
+// 3. TEAM ROSTERS
 const TEAMS = [
     { manager: "Josh", team: "Come and Get It", picks: ["Genevieve", "Q", "Emily", "Devens"] },
     { manager: "Ben", team: "Jeff Probst's Knife", picks: ["Colby", "Coach", "Genevieve", "Q"] },
     { manager: "Briggs", team: "Probst Blue Ribbon", picks: ["Coach", "Stephanie", "Aubry", "Jonathan"] },
     { manager: "Quinn", team: "The Big Jackpot", picks: ["Ozzy", "Rizo", "Q", "Christian"] },
-    { manager: "Megan", team: "Genevieve's New Group Project", picks: ["Charlie", "Genevieve", "Ozzy", "Devens"] },
-    { manager: "Kadie", team: "Rockin' the Hammock", picks: ["Charlie", "Christian", "Ozzy", "Genevieve"] },
-    { manager: "Devon", team: "Emily Flippen Fan Account", picks: ["Emily", "Devens", "Cirie", "Christian"] },
-    { manager: "Samuel", team: "Q-Rona", picks: ["Kamilla", "Ozzy", "Christian", "Q"] },
-    { manager: "Zoe", team: "Run, Climb, Puzzle", picks: ["Tiffany", "Ozzy", "Kamilla", "Cirie"] },
-    { manager: "Ana", team: "B-b-b-beautiful", picks: ["Devens", "Aubry", "Kamilla", "Jonathan"] },
-    { manager: "Eric", team: "Outwit. Outplay. OutKast.", picks: ["Joe", "Q", "Jonathan", "Coach"] },
-    { manager: "CC", team: "Mike White's Fruit Flies", picks: ["Kamilla", "Genevieve", "Dee", "Emily"] },
-    { manager: "Brittany", team: "Candice? From Raro Tribe??", picks: ["Q", "Genevieve", "Charlie", "Joe"] },
-    { manager: "Nitish", team: "Got Nothing For Ya", picks: ["Devens", "Christian", "Genevieve", "Ozzy"] },
-    { manager: "Hunter", team: "Jeff's Midlife Crisis", picks: ["Devens", "Ozzy", "Jonathan", "Q"] },
-    { manager: "Emma", team: "The White Lotus Ponderosa", picks: ["Emily", "Genevieve", "Tiffany", "Cirie"] },
-    { manager: "Emily", team: "Rachel's Pocket Rice", picks: ["Charlie", "Kyle", "Aubry", "Savannah"] },
-    { manager: "Luke", team: "Several Means Seven", picks: ["Rizo", "Angelina", "Charlie", "Kamilla"] },
-    { manager: "Brittany R", team: "Candice? From Raro Tribe?? (2)", picks: ["Genevieve", "Aubry", "Charlie", "Tiffany"] },
-    { manager: "Luke R", team: "Cancel Christmas!", picks: ["Aubry", "Jonathan", "Joe", "Jenna"] }
+    { manager: "Megan", team: "Genevieve's Project", picks: ["Charlie", "Genevieve", "Ozzy", "Devens"] }
+    // ... add all other teams here
 ];
 
 /* ==========================================================================
-   SYSTEM LOGIC
+   LOGIC ENGINE (Automatic)
    ========================================================================== */
 
 function init() {
-    const survivorTotals = {};
-    EPISODE_MATRIX.forEach(s => {
-        survivorTotals[s.name] = s.eps.reduce((a, b) => a + b, 0);
+    const stats = {};
+    let maxEp = 0;
+
+    // Build stats from log
+    MASTER_LOG.forEach(entry => {
+        if (!stats[entry.name]) stats[entry.name] = { total: 0, eps: {} };
+        stats[entry.name].total += entry.pts;
+        stats[entry.name].eps[entry.ep] = (stats[entry.name].eps[entry.ep] || 0) + entry.pts;
+        if (entry.ep > maxEp) maxEp = entry.ep;
     });
 
-    // Leaderboard with Swapped Hierarchy
+    // 1. Leaderboard
     const standings = TEAMS.map(t => {
         let score = 0;
-        t.picks.forEach(p => score += (survivorTotals[p] || 0));
+        t.picks.forEach(p => score += (stats[p]?.total || 0));
         return { ...t, score };
     }).sort((a, b) => b.score - a.score);
 
-    document.getElementById('leaderboard-body').innerHTML = standings.map((s, i) => 
-        `<tr>
+    document.getElementById('leaderboard-body').innerHTML = standings.map((s, i) => `
+        <tr>
             <td>${i+1}</td>
             <td>
                 <span class="primary-name">${s.team}</span>
-                <span class="secondary-name">Managed by ${s.manager}</span>
-                <div style="font-size:0.8em; margin-top:4px;">Roster: ${s.picks.join(', ')}</div>
+                <span class="secondary-name">${s.manager}</span>
+                <div style="font-size:0.75em; color:#999; margin-top:3px;">
+                    ${s.picks.map(p => {
+                        const isOut = SURVIVORS.find(surv => surv.name === p)?.active === false;
+                        return `<span class="${isOut ? 'eliminated' : ''}">${p}</span>`;
+                    }).join(', ')}
+                </div>
             </td>
             <td class="num">${s.score}</td>
-        </tr>`
-    ).join('');
-
-    // Tabulation Header
-    const maxEps = EPISODE_MATRIX[0].eps.length;
-    let headHtml = '<tr><th>Survivor</th>';
-    for(let i=1; i<=maxEps; i++) headHtml += `<th>Ep ${i}</th>`;
-    headHtml += '<th class="total-column">Total</th></tr>';
-    document.getElementById('tab-head').innerHTML = headHtml;
-
-    // Tabulation Body
-    document.getElementById('tab-body').innerHTML = EPISODE_MATRIX.sort((a,b) => survivorTotals[b.name] - survivorTotals[a.name]).map(s => `
-        <tr>
-            <td><strong>${s.name}</strong></td>
-            ${s.eps.map(v => `<td>${v}</td>`).join('')}
-            <td class="total-column">${survivorTotals[s.name]}</td>
         </tr>
     `).join('');
 
-    // Rules
-    document.getElementById('rules-body').innerHTML = POINT_VALUES.map(r => 
-        `<tr><td>${r.event}</td><td class="num">${r.pts}</td></tr>`
-    ).join('');
+    // 2. Log
+    document.getElementById('log-body').innerHTML = [...MASTER_LOG].reverse().map(l => `
+        <tr><td>${l.ep}</td><td><strong>${l.name}</strong></td><td>${l.reason}</td><td class="num">${l.pts}</td></tr>
+    `).join('');
+
+    // 3. Grid
+    let gHead = '<tr><th>Survivor</th>';
+    for(let i=1; i<=maxEp; i++) gHead += `<th>Ep ${i}</th>`;
+    gHead += '<th class="total-column">Total</th></tr>';
+    document.getElementById('grid-head').innerHTML = gHead;
+
+    document.getElementById('grid-body').innerHTML = SURVIVORS.sort((a,b) => (stats[b.name]?.total || 0) - (stats[a.name]?.total || 0)).map(s => {
+        let row = `<td><strong>${s.name}</strong> <span class="status-tag ${s.active ? 'active-tag' : 'out-tag'}">${s.active ? 'In' : 'Out'}</span></td>`;
+        for(let i=1; i<=maxEp; i++) row += `<td>${stats[s.name]?.eps[i] || 0}</td>`;
+        row += `<td class="total-column">${stats[s.name]?.total || 0}</td>`;
+        return `<tr>${row}</tr>`;
+    }).join('');
 }
 
 function openTab(id) {
