@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivor 50 Fantasy: Official Tracker</title>
+    <title>Fantasy Survivor S50</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,15 +103,15 @@
 
 <div class="container">
     <header>
-        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Survivor 50 Fantasy</p>
+        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Fantasy Survivor S50</p>
         <h1>Points Tracker</h1>
     </header>
 
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
             <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('standings', this)">Leaderboard</a></li>
-            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('log', this)">Point Log</a></li>
-            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('grid', this)">Episode Grid</a></li>
+            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('log', this)">Event Log</a></li>
+            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('grid', this)">Points by Episode</a></li>
         </ul>
     </div>
 
@@ -136,19 +136,19 @@
     </div>
 
     <div id="admin-data">
-        <div id="elimination-list">Savannah, Kyle</div>
+        <div id="elimination-list">Jenna, Kyle, Savannah, Mike</div>
         <table id="master-log-table">
             <tbody>
-                <tr><td>1</td><td>Genevieve</td><td>Idol Find + 3-Tribe Imm (1st)</td><td>6</td></tr>
+                <tr><td>1</td><td>Genevieve</td><td>Idol Find + 3-Tribe Immunity (1st)</td><td>6</td></tr>
                 <tr><td>1</td><td>Chrissy</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
                 <tr><td>1</td><td>Colby</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
                 <tr><td>1</td><td>Cirie</td><td>Tribe Reward</td><td>1</td></tr>
                 <tr><td>1</td><td>Ozzy</td><td>2-Tribe Immunity</td><td>2</td></tr>
-                <tr><td>1</td><td>Christian</td><td>VTEP (Pre-Merge)</td><td>1</td></tr>
+                <tr><td>1</td><td>Christian</td><td>Tribal Vote</td><td>1</td></tr>
                 <tr><td>1</td><td>Devens</td><td>2-Tribe Immunity</td><td>2</td></tr>
-                <tr><td>1</td><td>Emily</td><td>VTEP (Pre-Merge)</td><td>1</td></tr>
+                <tr><td>1</td><td>Emily</td><td>Tribal Vote</td><td>1</td></tr>
                 <tr><td>1</td><td>Joe</td><td>2-Tribe Immunity</td><td>2</td></tr>
-                <tr><td>1</td><td>Savannah</td><td>VTEP (Pre-Merge)</td><td>1</td></tr>
+                <tr><td>1</td><td>Savannah</td><td>Tribal Vote</td><td>1</td></tr>
                 <tr><td>1</td><td>Coach</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
                 <tr><td>1</td><td>Mike</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
                 <tr><td>1</td><td>Jonathan</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
@@ -214,8 +214,8 @@
                 <tr><td>4</td><td>Charlie</td><td>2-Tribe Immunity</td><td>2</td></tr>
                 <tr><td>4</td><td>Kamilla</td><td>2-Tribe Immunity</td><td>2</td></tr>
                 <tr><td>4</td><td>Rizo</td><td>2-Tribe Immunity</td><td>2</td></tr>
-                <tr><td>4</td><td>Christian</td><td>VTEP</td><td>1</td></tr>
-                <tr><td>4</td><td>Emily</td><td>VTEP</td><td>1</td></tr>
+                <tr><td>4</td><td>Christian</td><td>Tribal Vote</td><td>1</td></tr>
+                <tr><td>4</td><td>Emily</td><td>Tribal Vote</td><td>1</td></tr>
                 <tr><td>4</td><td>Stephanie</td><td>VTEP</td><td>1</td></tr>
                 <tr><td>4</td><td>Genevieve</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
                 <tr><td>4</td><td>Tiffany</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
@@ -236,13 +236,11 @@
             <div data-team="B-b-b-beautiful" data-manager="Ana">Devens, Aubry, Kamilla, Jonathan</div>
             <div data-team="Outwit. Outplay. OutKast." data-manager="Eric">Joe, Q, Jonathan, Coach</div>
             <div data-team="Mike White's Fruit Flies" data-manager="CC">Kamilla, Genevieve, Dee, Emily</div>
-            <div data-team="Candice? From Raro Tribe??" data-manager="Brittany">Q, Genevieve, Charlie, Joe</div>
             <div data-team="Got Nothing For Ya" data-manager="Nitish">Devens, Christian, Genevieve, Ozzy</div>
             <div data-team="Jeff's Midlife Crisis" data-manager="Hunter">Devens, Ozzy, Jonathan, Q</div>
             <div data-team="The White Lotus" data-manager="Emma">Emily, Genevieve, Tiffany, Cirie</div>
             <div data-team="Rachel's Pocket Rice" data-manager="Emily R">Charlie, Kyle, Aubry, Savannah</div>
-            <div data-team="Several Means Seven" data-manager="Luke">Rizo, Angelina, Charlie, Kamilla</div>
-            <div data-team="Candice? (2)" data-manager="Brittany R">Genevieve, Aubry, Charlie, Tiffany</div>
+            <div data-team="Candice? From Raro Tribe??" data-manager="Brittany R">Genevieve, Aubry, Charlie, Tiffany</div>
             <div data-team="Cancel Christmas!" data-manager="Luke R">Aubry, Jonathan, Joe, Jenna</div>
         </div>
     </div>
