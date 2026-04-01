@@ -3,101 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivor 50 - System 7</title>
-    <link rel="stylesheet" href="https://bbenchoff.github.io/pages/system7.css">
+    <title>Survivor 50 Fantasy</title>
+    <link rel="stylesheet" href="https://unpkg.com/system.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
-        body { background-color: #444; padding: 20px; display: flex; justify-content: center; }
-        .window { width: 100%; max-width: 700px; margin-top: 50px; }
+        body { background-color: #555; padding: 20px; display: flex; justify-content: center; font-family: 'Geneva', 'Chicago', sans-serif; }
+        .window { width: 100%; max-width: 800px; }
         
-        .tab-content { display: none; padding: 10px; }
+        /* Layout for the data */
+        .tab-content { display: none; padding: 15px; background: #fff; }
         .tab-content.active { display: block; }
-
-        /* Styling for the list views */
-        .data-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #000; }
-        .data-table th { background: #ddd; border: 1px solid #000; text-align: left; padding: 5px; font-size: 11px; text-transform: uppercase; }
-        .data-table td { border: 1px solid #eee; padding: 8px 5px; font-size: 13px; }
-        .pts-col { text-align: right; font-weight: bold; width: 60px; }
         
-        .loading-pane { text-align: center; padding: 40px; }
+        .standard-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .standard-table th { text-align: left; background: #eee; border: 1px solid #000; padding: 5px; font-size: 12px; }
+        .standard-table td { border: 1px solid #ccc; padding: 8px 5px; font-size: 14px; }
         
-        /* Custom buttons for tab switching */
-        .tab-bar { display: flex; border-bottom: 1px solid #000; background: #ccc; }
-        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid #000; border-bottom: none; margin-right: 2px; background: #bbb; font-size: 12px; }
-        .tab-btn.active { background: #fff; font-weight: bold; }
+        .num { text-align: right; font-weight: bold; width: 60px; }
+        
+        #loading-screen { text-align: center; padding: 40px; }
+        
+        /* Navigation Tabs */
+        .nav-bar { display: flex; gap: 2px; background: #ccc; padding: 5px 5px 0 5px; border-bottom: 1px solid #000; }
+        .nav-btn { 
+            padding: 5px 15px; 
+            border: 1px solid #000; 
+            border-bottom: none; 
+            background: #bbb; 
+            cursor: pointer; 
+            font-size: 12px;
+            border-radius: 5px 5px 0 0;
+        }
+        .nav-btn.active { background: #fff; font-weight: bold; position: relative; top: 1px; }
     </style>
 </head>
 <body>
 
 <div class="window">
     <div class="title-bar">
-        <div class="close-button"></div>
-        <div class="title-bar-text">Survivor_Fantasy_v7.0</div>
-    </div>
-    
-    <div class="tab-bar">
-        <div class="tab-btn active" id="btn-standings" onclick="show('standings')">Standings</div>
-        <div class="tab-btn" id="btn-rosters" onclick="show('rosters')">Teams</div>
-        <div class="tab-btn" id="btn-players" onclick="show('players')">Scoring</div>
+        <button class="close"></button>
+        <h1 class="title">Survivor_Fantasy_S50</h1>
     </div>
 
-    <div class="window-contents">
-        <div id="loading" class="loading-pane">
+    <div class="separator"></div>
+
+    <div class="window-pane">
+        <div class="nav-bar">
+            <button class="nav-btn active" id="btn-standings" onclick="openTab('standings')">Standings</button>
+            <button class="nav-btn" id="btn-rosters" onclick="openTab('rosters')">Teams</button>
+            <button class="nav-btn" id="btn-players" onclick="openTab('players')">Contestants</button>
+            <button class="nav-btn" id="btn-rules" onclick="openTab('rules')">Matrix</button>
+        </div>
+
+        <div id="loading-screen">
             <p>Scanning Fiji Data Centers...</p>
+            <div class="progress">
+                <div class="progress-bar" style="width: 100%"></div>
+            </div>
         </div>
 
         <div id="standings" class="tab-content">
-            <table class="data-table">
-                <thead><tr><th>Rank</th><th>League Member</th><th class="pts-col">Score</th></tr></thead>
-                <tbody id="tbody-standings"></tbody>
-            </table>
-        </div>
-
-        <div id="rosters" class="tab-content">
-            <table class="data-table">
-                <thead><tr><th>Team Name</th><th>Roster</th></tr></thead>
-                <tbody id="tbody-rosters"></tbody>
-            </table>
-        </div>
-
-        <div id="players" class="tab-content">
-            <table class="data-table">
-                <thead><tr><th>Contestant</th><th class="pts-col">Points</th></tr></thead>
-                <tbody id="tbody-players"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    const URLS = {
-        scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh/pub?output=csv',
-        teams:  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQBu9Rc5HtkTMzSWK7-r-Ue4Dd-jRWhitWIxvhHHLyYqd02fRcJapxCVY_VrCPtqyh1jAFCcN3wYG7/pub?gid=948259148&single=true&output=csv'
-    };
-
-    let data = { players: {}, teams: [] };
-
-    async function init() {
-        try {
-            const [sRes, tRes] = await Promise.all([ fetchCSV(URLS.scores), fetchCSV(URLS.teams) ]);
-
-            // Map Individual Player Scores
-            sRes.forEach(row => {
-                const name = row['Player'] || row['Unnamed: 0'];
-                const pts = parseFloat(row['Total points'] || row['Unnamed: 1']);
-                if (name && name !== 'Player' && !isNaN(pts)) {
-                    data.players[name.trim()] = pts;
-                }
-            });
-
-            // Calculate Team Scores
-            data.teams = tRes.map(t => {
-                const picks = [t['Pick 1'], t['Pick 2'], t['Pick 3'], t['Pick 4']];
-                let total = 0;
-                const roster = picks.filter(p => p).map(p => {
-                    const val = data.players[p.trim()] || 0;
-                    total += val;
-                    return p.trim();
-                });
-                return {
-                    name
+            <table class="standard-table">
+                <thead><tr>
