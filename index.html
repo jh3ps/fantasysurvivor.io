@@ -2,193 +2,142 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survivor 50 Fantasy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
     <style>
-        :root { --survivor-blue: #1f8dd6; --bg: #f4f4f4; }
-        body { color: #333; line-height: 1.6; background-color: var(--bg); font-family: 'Segoe UI', sans-serif; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; background: #fff; min-height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
-        h1 { margin: 0; color: var(--survivor-blue); }
+        body { color: #333; background: #f4f4f4; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .tab-content { display: none; margin-top: 20px; }
+        .active { display: block; }
+        .num { text-align: right; font-weight: bold; }
+        .pure-menu-link { cursor: pointer; }
+        .pure-menu-selected { background: #1f8dd6 !important; color: white !important; }
         
-        /* Nav Tabs */
-        .pure-menu-horizontal { margin-bottom: 20px; border-bottom: 1px solid #eee; overflow-x: auto; white-space: nowrap; }
-        .pure-menu-selected .pure-menu-link { background: var(--survivor-blue); color: white; border-radius: 4px 4px 0 0; }
-
-        .tab-content { display: none; padding-top: 10px; }
-        .tab-content.active { display: block; }
-
-        /* Tables */
-        .table-wrapper { overflow-x: auto; margin-top: 10px; }
-        .pure-table { width: 100%; font-size: 0.9em; }
-        .num { text-align: right !important; font-weight: bold; }
-        .total-column { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid var(--survivor-blue) !important; }
+        /* The "Database" Table is hidden from users but read by the script */
+        #master-log-table { display: none; }
         
-        /* UI Elements */
-        .primary-name { font-size: 1.1em; font-weight: bold; color: var(--survivor-blue); display: block; }
-        .secondary-name { font-size: 0.9em; color: #666; font-style: italic; display: block; }
-        .eliminated { text-decoration: line-through; color: #999 !important; }
-        .status-tag { font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; text-transform: uppercase; vertical-align: middle; }
-        .active-tag { background: #e7f4e4; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .out-tag { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .team-title { font-size: 1.1em; font-weight: bold; color: #1f8dd6; display: block; }
+        .manager-sub { font-size: 0.9em; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <div>
-            <p style="margin:0; font-size: 0.8em; color: #888;">Season 50</p>
-            <h1>Survivor Fantasy League</h1>
-        </div>
-    </header>
+    <h1>Survivor 50 Fantasy</h1>
 
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
-            <li class="pure-menu-item pure-menu-selected" id="li-standings"><a href="#" class="pure-menu-link" onclick="openTab('standings')">Leaderboard</a></li>
-            <li class="pure-menu-item" id="li-log"><a href="#" class="pure-menu-link" onclick="openTab('log')">Point Log</a></li>
-            <li class="pure-menu-item" id="li-grid"><a href="#" class="pure-menu-link" onclick="openTab('grid')">Episode Grid</a></li>
+            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('standings', this)">Leaderboard</a></li>
+            <li class="pure-menu-item"><a class="pure-menu-link" onclick="showTab('history', this)">Point Log</a></li>
         </ul>
     </div>
 
     <div id="standings" class="tab-content active">
-        <table class="pure-table pure-table-horizontal pure-table-striped">
-            <thead>
-                <tr><th>Rank</th><th>Fantasy Team</th><th class="num">Score</th></tr>
-            </thead>
-            <tbody id="leaderboard-body"></tbody>
+        <table class="pure-table pure-table-horizontal pure-table-striped" style="width:100%">
+            <thead><tr><th>Rank</th><th>Team</th><th class="num">Points</th></tr></thead>
+            <tbody id="leaderboard-output"></tbody>
         </table>
     </div>
 
-    <div id="log" class="tab-content">
-        <table class="pure-table pure-table-horizontal pure-table-striped">
-            <thead>
-                <tr><th>Ep</th><th>Survivor</th><th>Achievement</th><th class="num">Pts</th></tr>
-            </thead>
-            <tbody id="log-body"></tbody>
+    <div id="history" class="tab-content">
+        <table class="pure-table pure-table-horizontal" style="width:100%">
+            <thead><tr><th>Ep</th><th>Survivor</th><th>Reason</th><th class="num">Pts</th></tr></thead>
+            <tbody id="log-output"></tbody>
         </table>
     </div>
 
-    <div id="grid" class="tab-content">
-        <div class="table-wrapper">
-            <table class="pure-table pure-table-bordered">
-                <thead id="grid-head"></thead>
-                <tbody id="grid-body"></tbody>
-            </table>
-        </div>
+    <hr>
+
+    <h3>Admin: Add Scores Below</h3>
+    <p><small>Add a new row (tr) for every point earned. The site does the math.</small></p>
+    
+    <table id="master-log-table">
+        <thead><tr><th>Ep</th><th>Name</th><th>Reason</th><th>Pts</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td>Genevieve</td><td>3-Tribe Immunity (1st) + Merge</td><td>6</td></tr>
+            <tr><td>1</td><td>Joe</td><td>3-Tribe Immunity (1st) + Merge</td><td>6</td></tr>
+            <tr><td>1</td><td>Aubry</td><td>3-Tribe Immunity (2nd) + Merge</td><td>5</td></tr>
+            <tr><td>2</td><td>Aubry</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
+            <tr><td>2</td><td>Christian</td><td>Individual Immunity</td><td>4</td></tr>
+            <tr><td>3</td><td>Cirie</td><td>Idol Find</td><td>3</td></tr>
+            </tbody>
+    </table>
+
+    <div id="roster-data" style="display:none">
+        <div data-team="Come and Get It" data-manager="Josh">Genevieve, Q, Emily, Devens</div>
+        <div data-team="Jeff Probst's Knife" data-manager="Ben">Colby, Coach, Genevieve, Q</div>
+        <div data-team="Probst Blue Ribbon" data-manager="Briggs">Coach, Stephanie, Aubry, Jonathan</div>
+        <div data-team="The Big Jackpot" data-manager="Quinn">Ozzy, Rizo, Q, Christian</div>
     </div>
+
 </div>
 
 <script>
-/* ==========================================================================
-   INTERNAL DATABASE
-   ========================================================================== */
+function calculateScores() {
+    const survivorPoints = {};
+    const logRows = document.querySelectorAll('#master-log-table tbody tr');
+    const logOutput = document.getElementById('log-output');
+    
+    logOutput.innerHTML = ""; // Clear log
 
-// 1. SURVIVOR STATUS (Update 'active' to false when they are voted out)
-const SURVIVORS = [
-    { name: "Jenna", active: true }, { name: "Cirie", active: true },
-    { name: "Ozzy", active: true }, { name: "Christian", active: true },
-    { name: "Devens", active: true }, { name: "Aubry", active: true },
-    { name: "Kamilla", active: true }, { name: "Jonathan", active: true },
-    { name: "Colby", active: true }, { name: "Coach", active: true },
-    { name: "Genevieve", active: true }, { name: "Q", active: true },
-    { name: "Rizo", active: true }, { name: "Angelina", active: true },
-    { name: "Charlie", active: true }, { name: "Mike", active: true },
-    { name: "Emily", active: true }, { name: "Joe", active: true },
-    { name: "Tiffany", active: true }, { name: "Stephanie", active: true },
-    { name: "Dee", active: true }, { name: "Chrissy", active: true },
-    { name: "Kyle", active: true }, { name: "Savannah", active: false }
-];
+    // 1. Process the HTML Table "Database"
+    logRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const ep = cells[0].innerText;
+        const name = cells[1].innerText.trim();
+        const reason = cells[2].innerText;
+        const pts = parseInt(cells[3].innerText);
 
-// 2. SCORING LOG (Add new lines here every week)
-const MASTER_LOG = [
-    { ep: 1, name: "Genevieve", reason: "3-Tribe Immunity (1st) + Merge", pts: 6 },
-    { ep: 1, name: "Joe", reason: "3-Tribe Immunity (1st) + Merge", pts: 6 },
-    { ep: 1, name: "Aubry", reason: "3-Tribe Immunity (2nd) + Merge", pts: 5 },
-    { ep: 2, name: "Aubry", reason: "3-Tribe Immunity (1st)", pts: 3 },
-    { ep: 2, name: "Christian", reason: "Individual Immunity", pts: 4 },
-    { ep: 3, name: "Cirie", reason: "Idol Find", pts: 3 },
-    { ep: 4, name: "Cirie", reason: "VTEP", pts: 1 } // Example for next week
-];
+        // Track totals per survivor
+        if (!survivorPoints[name]) survivorPoints[name] = 0;
+        survivorPoints[name] += pts;
 
-// 3. TEAM ROSTERS
-const TEAMS = [
-    { manager: "Josh", team: "Come and Get It", picks: ["Genevieve", "Q", "Emily", "Devens"] },
-    { manager: "Ben", team: "Jeff Probst's Knife", picks: ["Colby", "Coach", "Genevieve", "Q"] },
-    { manager: "Briggs", team: "Probst Blue Ribbon", picks: ["Coach", "Stephanie", "Aubry", "Jonathan"] },
-    { manager: "Quinn", team: "The Big Jackpot", picks: ["Ozzy", "Rizo", "Q", "Christian"] },
-    { manager: "Megan", team: "Genevieve's Project", picks: ["Charlie", "Genevieve", "Ozzy", "Devens"] }
-    // ... add all other teams here
-];
-
-/* ==========================================================================
-   LOGIC ENGINE (Automatic)
-   ========================================================================== */
-
-function init() {
-    const stats = {};
-    let maxEp = 0;
-
-    // Build stats from log
-    MASTER_LOG.forEach(entry => {
-        if (!stats[entry.name]) stats[entry.name] = { total: 0, eps: {} };
-        stats[entry.name].total += entry.pts;
-        stats[entry.name].eps[entry.ep] = (stats[entry.name].eps[entry.ep] || 0) + entry.pts;
-        if (entry.ep > maxEp) maxEp = entry.ep;
+        // Show in the visible log tab
+        logOutput.innerHTML += `<tr><td>${ep}</td><td><strong>${name}</strong></td><td>${reason}</td><td class="num">${pts}</td></tr>`;
     });
 
-    // 1. Leaderboard
-    const standings = TEAMS.map(t => {
-        let score = 0;
-        t.picks.forEach(p => score += (stats[p]?.total || 0));
-        return { ...t, score };
-    }).sort((a, b) => b.score - a.score);
+    // 2. Process Rosters and Calculate Team Totals
+    const teamData = [];
+    const rosterDivs = document.querySelectorAll('#roster-data div');
+    
+    rosterDivs.forEach(div => {
+        const teamName = div.getAttribute('data-team');
+        const manager = div.getAttribute('data-manager');
+        const picks = div.innerText.split(',').map(p => p.trim());
+        
+        let totalScore = 0;
+        picks.forEach(p => {
+            totalScore += (survivorPoints[p] || 0);
+        });
 
-    document.getElementById('leaderboard-body').innerHTML = standings.map((s, i) => `
+        teamData.push({ teamName, manager, totalScore });
+    });
+
+    // 3. Render Leaderboard
+    teamData.sort((a, b) => b.totalScore - a.totalScore);
+    const leaderboardBody = document.getElementById('leaderboard-output');
+    leaderboardBody.innerHTML = teamData.map((t, i) => `
         <tr>
             <td>${i+1}</td>
             <td>
-                <span class="primary-name">${s.team}</span>
-                <span class="secondary-name">${s.manager}</span>
-                <div style="font-size:0.75em; color:#999; margin-top:3px;">
-                    ${s.picks.map(p => {
-                        const isOut = SURVIVORS.find(surv => surv.name === p)?.active === false;
-                        return `<span class="${isOut ? 'eliminated' : ''}">${p}</span>`;
-                    }).join(', ')}
-                </div>
+                <span class="team-title">${t.teamName}</span>
+                <span class="manager-sub">${t.manager}</span>
             </td>
-            <td class="num">${s.score}</td>
+            <td class="num">${t.totalScore}</td>
         </tr>
     `).join('');
-
-    // 2. Log
-    document.getElementById('log-body').innerHTML = [...MASTER_LOG].reverse().map(l => `
-        <tr><td>${l.ep}</td><td><strong>${l.name}</strong></td><td>${l.reason}</td><td class="num">${l.pts}</td></tr>
-    `).join('');
-
-    // 3. Grid
-    let gHead = '<tr><th>Survivor</th>';
-    for(let i=1; i<=maxEp; i++) gHead += `<th>Ep ${i}</th>`;
-    gHead += '<th class="total-column">Total</th></tr>';
-    document.getElementById('grid-head').innerHTML = gHead;
-
-    document.getElementById('grid-body').innerHTML = SURVIVORS.sort((a,b) => (stats[b.name]?.total || 0) - (stats[a.name]?.total || 0)).map(s => {
-        let row = `<td><strong>${s.name}</strong> <span class="status-tag ${s.active ? 'active-tag' : 'out-tag'}">${s.active ? 'In' : 'Out'}</span></td>`;
-        for(let i=1; i<=maxEp; i++) row += `<td>${stats[s.name]?.eps[i] || 0}</td>`;
-        row += `<td class="total-column">${stats[s.name]?.total || 0}</td>`;
-        return `<tr>${row}</tr>`;
-    }).join('');
 }
 
-function openTab(id) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.pure-menu-item').forEach(m => m.classList.remove('pure-menu-selected'));
-    document.getElementById(id).classList.add('active');
-    document.getElementById('li-' + id).classList.add('pure-menu-selected');
+function showTab(id, el) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    document.querySelectorAll('.pure-menu-link').forEach(l => l.classList.remove('pure-menu-selected'));
+    el.classList.add('pure-menu-selected');
 }
 
-init();
+// Initial Run
+calculateScores();
 </script>
+
 </body>
 </html>
