@@ -4,34 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survivor 50 Fantasy: Official Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+    <link rel="stylesheet" href="https://cdn.npm.net/npm/purecss@3.0.0/build/pure-min.css">
     <style>
         :root { --survivor-blue: #1f8dd6; --bg: #f4f4f4; }
-        body { color: #333; background: var(--bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+        body { color: #333; background: var(--bg); font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }
         .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 90vh; }
         header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 25px; padding-bottom: 10px; }
-        h1 { margin: 0; color: var(--survivor-blue); letter-spacing: -1px; }
+        h1 { margin: 0; color: var(--survivor-blue); }
         
         /* Navigation */
         .tab-content { display: none; margin-top: 20px; }
         .active { display: block; }
-        .pure-menu-link { cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .pure-menu-link { cursor: pointer; font-weight: bold; }
         .pure-menu-selected { background: var(--survivor-blue) !important; color: white !important; border-radius: 4px; }
         
-        /* Rankings & Points */
+        /* Table Styling */
         .num { text-align: right !important; font-weight: bold; }
         .total-highlight { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid var(--survivor-blue) !important; }
-        
-        /* Elimination Styling */
         .voted-out { text-decoration: line-through; color: #a0a0a0 !important; opacity: 0.6; }
-        .out-badge { background: #eee; color: #666; font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-decoration: none !important; display: inline-block; }
+        .out-badge { background: #eee; color: #666; font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-decoration: none !important; }
         
         /* Team Layout */
         .team-title { font-size: 1.1em; font-weight: bold; color: var(--survivor-blue); display: block; }
         .manager-sub { font-size: 0.85em; color: #666; font-style: italic; }
         .roster-preview { font-size: 0.75em; color: #888; margin-top: 4px; }
 
-        /* Hidden Admin "Database" */
+        /* GRID HOVER TOOLTIPS */
+        .point-cell { position: relative; cursor: help; }
+        .tooltip {
+            visibility: hidden; width: 200px; background-color: #222; color: #fff;
+            text-align: left; border-radius: 6px; padding: 10px; position: absolute;
+            z-index: 99; bottom: 125%; left: 50%; margin-left: -100px;
+            opacity: 0; transition: opacity 0.3s; font-size: 0.8em; font-weight: normal;
+            line-height: 1.4; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .tooltip::after {
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid; border-color: #222 transparent transparent transparent;
+        }
+        .point-cell:hover .tooltip { visibility: visible; opacity: 1; }
+        .point-cell:hover { background-color: #eaf4ff !important; }
+
         #admin-data { display: none; }
     </style>
 </head>
@@ -66,7 +79,7 @@
     </div>
 
     <div id="grid" class="tab-content">
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; padding-top: 40px;"> 
             <table class="pure-table pure-table-bordered" style="width:100%">
                 <thead id="grid-head"></thead>
                 <tbody id="grid-body"></tbody>
@@ -75,7 +88,6 @@
     </div>
 
     <div id="admin-data">
-        
         <div id="elimination-list">Savannah, Kyle</div>
 
         <table id="master-log-table">
@@ -192,94 +204,89 @@
 <script>
 const ALL_SURVIVORS = ["Jenna", "Cirie", "Ozzy", "Christian", "Devens", "Emily", "Joe", "Savannah", "Coach", "Chrissy", "Mike", "Jonathan", "Dee", "Charlie", "Tiffany", "Kamilla", "Colby", "Stephanie", "Aubry", "Angelina", "Q", "Genevieve", "Kyle", "Rizo"];
 
-function runTrackerEngine() {
+function runTracker() {
     const survivorStats = {};
     const outList = document.getElementById('elimination-list').innerText.split(',').map(s => s.trim()).filter(s => s !== "");
-    let maxEpisode = 0;
+    let maxEp = 0;
 
-    // 1. Process Master Log
+    // 1. Process Logs
     const logRows = document.querySelectorAll('#master-log-table tbody tr');
     const logOutput = document.getElementById('log-output');
-    logOutput.innerHTML = ""; // Clear existing
+    logOutput.innerHTML = "";
 
     [...logRows].reverse().forEach(row => {
-        const cells = row.cells;
-        const ep = parseInt(cells[0].innerText);
-        const name = cells[1].innerText.trim();
-        const reason = cells[2].innerText;
-        const pts = parseInt(cells[3].innerText);
+        const c = row.cells;
+        const ep = parseInt(c[0].innerText);
+        const name = c[1].innerText.trim();
+        const reason = c[2].innerText;
+        const pts = parseInt(c[3].innerText);
 
-        if (!survivorStats[name]) survivorStats[name] = { total: 0, eps: {} };
+        if (!survivorStats[name]) survivorStats[name] = { total: 0, episodes: {} };
+        if (!survivorStats[name].episodes[ep]) survivorStats[name].episodes[ep] = { score: 0, details: [] };
+
         survivorStats[name].total += pts;
-        survivorStats[name].eps[ep] = (survivorStats[name].eps[ep] || 0) + pts;
-        
-        if (ep > maxEpisode) maxEpisode = ep;
+        survivorStats[name].episodes[ep].score += pts;
+        survivorStats[name].episodes[ep].details.push(`${reason} (${pts})`);
+        if (ep > maxEp) maxEp = ep;
 
-        const isVotedOut = outList.includes(name);
-        logOutput.innerHTML += `<tr class="${isVotedOut ? 'voted-out' : ''}">
-            <td>${ep}</td>
-            <td><strong>${name}</strong></td>
-            <td>${reason}</td>
-            <td class="num">${pts}</td>
-        </tr>`;
+        const isOut = outList.includes(name);
+        logOutput.innerHTML += `<tr class="${isOut ? 'voted-out' : ''}"><td>${ep}</td><td><strong>${name}</strong></td><td>${reason}</td><td class="num">${pts}</td></tr>`;
     });
 
-    // 2. Build Grid
-    let gridHeaderHtml = '<tr><th>Survivor</th>';
-    for(let i=1; i<=maxEpisode; i++) gridHeaderHtml += `<th>Ep ${i}</th>`;
-    gridHeaderHtml += '<th class="total-highlight">Total</th></tr>';
-    document.getElementById('grid-head').innerHTML = gridHeaderHtml;
+    // 2. Render Grid
+    let gHead = '<tr><th>Survivor</th>';
+    for(let i=1; i<=maxEp; i++) gHead += `<th>Ep ${i}</th>`;
+    gHead += '<th class="total-highlight">Total</th></tr>';
+    document.getElementById('grid-head').innerHTML = gHead;
 
     document.getElementById('grid-body').innerHTML = ALL_SURVIVORS.sort((a,b) => (survivorStats[b]?.total || 0) - (survivorStats[a]?.total || 0)).map(name => {
         const isOut = outList.includes(name);
         const rank = isOut ? `<span class="out-badge">${24 - outList.indexOf(name)}th</span>` : "";
         let rowHtml = `<td class="${isOut ? 'voted-out' : ''}"><strong>${name}</strong> ${rank}</td>`;
-        for(let i=1; i<=maxEpisode; i++) {
-            rowHtml += `<td>${survivorStats[name]?.eps[i] || 0}</td>`;
+        
+        for(let i=1; i<=maxEp; i++) {
+            const epData = survivorStats[name]?.episodes[i];
+            if (epData && epData.score > 0) {
+                const detailList = epData.details.map(d => `• ${d}`).join('<br>');
+                rowHtml += `
+                    <td class="point-cell num">
+                        ${epData.score}
+                        <div class="tooltip">
+                            <strong>Ep ${i} Breakdown:</strong><br>${detailList}
+                        </div>
+                    </td>`;
+            } else {
+                rowHtml += `<td class="num" style="color:#eee">0</td>`;
+            }
         }
-        rowHtml += `<td class="total-highlight">${survivorStats[name]?.total || 0}</td>`;
+        rowHtml += `<td class="total-highlight num">${survivorStats[name]?.total || 0}</td>`;
         return `<tr>${rowHtml}</tr>`;
     }).join('');
 
-    // 3. Calculate Teams
+    // 3. Render Leaderboard
     const teams = [];
     document.querySelectorAll('#roster-data div').forEach(div => {
         const picks = div.innerText.split(',').map(p => p.trim());
-        let teamScore = 0;
-        picks.forEach(p => teamScore += (survivorStats[p]?.total || 0));
-        teams.push({ 
-            name: div.getAttribute('data-team'), 
-            manager: div.getAttribute('data-manager'), 
-            picks: picks, 
-            score: teamScore 
-        });
+        let score = 0;
+        picks.forEach(p => score += (survivorStats[p]?.total || 0));
+        teams.push({ name: div.getAttribute('data-team'), mgr: div.getAttribute('data-manager'), picks, score });
     });
 
-    // 4. Render Leaderboard
     document.getElementById('leaderboard-output').innerHTML = teams.sort((a,b) => b.score - a.score).map((t, i) => `
-        <tr>
-            <td>${i+1}</td>
-            <td>
-                <span class="team-title">${t.name}</span>
-                <span class="manager-sub">${t.manager}</span>
-                <div class="roster-preview">${t.picks.map(p => `<span class="${outList.includes(p) ? 'voted-out' : ''}">${p}</span>`).join(', ')}</div>
-            </td>
-            <td class="num">${t.score}</td>
-        </tr>
-    `).join('');
+        <tr><td>${i+1}</td><td><span class="team-title">${t.name}</span><span class="manager-sub">${t.mgr}</span>
+        <div class="roster-preview">${t.picks.map(p => `<span class="${outList.includes(p) ? 'voted-out' : ''}">${p}</span>`).join(', ')}</div></td>
+        <td class="num">${t.score}</td></tr>`).join('');
 }
 
 function showTab(id, el) {
     document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
     document.getElementById(id).style.display = 'block';
     document.querySelectorAll('.pure-menu-link').forEach(l => l.classList.remove('pure-menu-selected'));
-    el.classList.add('pure-menu-selected');
+    if(el) el.classList.add('pure-menu-selected');
 }
 
-// Initialize
-runTrackerEngine();
+runTracker();
 document.querySelector('.pure-menu-link').classList.add('pure-menu-selected');
 </script>
-
 </body>
 </html>
