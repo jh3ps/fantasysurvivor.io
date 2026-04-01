@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantasy Survivor S50</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
-    
+
     <style>
         :root { --survivor-blue: #1f8dd6; --bg: #f9f9f9; --border: #e0e0e0; }
-        
+
         body { 
             color: #333; background: var(--bg); 
             font-family: 'Manrope', sans-serif; 
             padding: 20px; line-height: 1.6;
         }
-        
+
         .container { 
             max-width: 1100px; margin: auto; background: white; 
             padding: 40px; border-radius: 12px; 
@@ -28,14 +28,14 @@
 
         header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 30px; padding-bottom: 15px; text-align: center; }
         h1 { margin: 0; color: var(--survivor-blue); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        
+
         /* NAVIGATION */
         .pure-menu { display: flex; justify-content: center; margin-bottom: 30px; }
         .tab-content { display: none; }
         .active { display: block; }
         .pure-menu-link { cursor: pointer; font-weight: 600; color: #555; transition: 0.2s; border-radius: 6px; margin: 0 5px; }
         .pure-menu-selected { background: var(--survivor-blue) !important; color: white !important; }
-        
+
         /* GENERAL TABLE STYLING */
         .pure-table { width: 100%; border-collapse: collapse; border: none; }
         .pure-table th, .pure-table td { 
@@ -45,24 +45,20 @@
             border: none;
         }
 
-        /* HORIZONTAL SEPARATION BARS (Leaderboard) */
         #leaderboard-output tr { border-bottom: 1px solid var(--border); }
-        #leaderboard-output tr:last-child { border-bottom: none; }
-
-        /* VERTICAL SEPARATION BARS (Grid Episodes) */
         .v-bar { border-right: 1px solid var(--border) !important; }
 
         .num { font-weight: 800; color: #111; }
         .total-highlight { background-color: #f0f7ff !important; font-weight: 800; color: var(--survivor-blue); }
         .voted-out { text-decoration: line-through; color: #bbb !important; opacity: 0.6; }
         .out-badge { background: #f0f0f0; color: #888; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-block; margin-top: 4px;}
-        
+
         /* TEAM DISPLAY */
         .team-title { font-size: 1.1em; font-weight: 800; color: var(--survivor-blue); display: block; }
         .manager-sub { font-size: 0.85em; color: #777; font-style: italic; display: block; margin-bottom: 4px; }
         .roster-preview { font-size: 0.75em; color: #999; }
 
-        /* LOG (ACTION-FIRST) STYLING */
+        /* LOG STYLING */
         .ep-header { 
             background: #333; color: white; padding: 12px; 
             border-radius: 6px; margin-top: 40px; font-weight: 800; 
@@ -94,7 +90,6 @@
             border-width: 6px; border-style: solid; border-color: #1a1a1a transparent transparent transparent;
         }
         .point-cell:hover .tooltip { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-5px); }
-        .point-cell:hover { background-color: #f0f7ff !important; }
 
         #admin-data { display: none; }
     </style>
@@ -103,7 +98,7 @@
 
 <div class="container">
     <header>
-        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Fantasy Survivor S50</p>
+        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Survivor 50 Fantasy</p>
         <h1>Points Tracker</h1>
     </header>
 
@@ -137,54 +132,32 @@
 
     <div id="admin-data">
         <div id="elimination-list">Jenna, Kyle, Savannah, Mike</div>
+        
         <table id="master-log-table">
-    <thead>
-        <tr>
-            <th>Episode</th>
-            <th>Log Entries</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>1</td>
-            <td>
-                <strong>Genevieve:</strong> Idol Find + 3-Tribe Immunity (1st) (6)<br>
-                <strong>Chrissy, Colby, Coach, Mike, Jonathan, Dee, Charlie, Tiffany, Kamilla, Stephanie, Aubry, Angelina, Q, Kyle, Rizo:</strong> 3-Tribe Immunity (1st) (3)<br>
-                <strong>Ozzy, Devens, Joe:</strong> 2-Tribe Immunity (2)<br>
-                <strong>Christian, Emily, Savannah:</strong> Tribal Vote (1)<br>
-                <strong>Cirie:</strong> Tribe Reward (1)
-            </td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>
-                <strong>Christian:</strong> Successful Idol Play + Merge (5)<br>
-                <strong>Aubry, Chrissy, Mike, Colby, Stephanie, Angelina, Q, Genevieve, Rizo:</strong> 3-Tribe Immunity (1st) (3)<br>
-                <strong>Cirie, Ozzy, Devens, Emily, Joe:</strong> 2-Tribe Immunity (2)<br>
-                <strong>Coach, Jonathan, Dee, Charlie, Tiffany, Kamilla:</strong> 3-Tribe Immunity (2nd) (2)<br>
-                <strong>Savannah:</strong> Redemption Victory (1)
-            </td>
-        </tr>
-        <tr>
-            <td>3</td>
-            <td>
-                <strong>Cirie, Jonathan, Devens, Dee, Charlie, Kamilla, Rizo:</strong> Individual Immunity (4)<br>
-                <strong>Joe, Coach, Chrissy, Tiffany, Colby, Aubry:</strong> 2-Tribe Immunity (2)<br>
-                <strong>Ozzy, Christian, Emily, Mike, Angelina:</strong> VTEP (1)
-            </td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td>
-                <strong>Joe, Coach, Chrissy, Colby, Aubry:</strong> Individual Immunity (4)<br>
-                <strong>Genevieve, Tiffany:</strong> 3-Tribe Immunity (1st) (3)<br>
-                <strong>Cirie, Devens, Jonathan, Dee, Charlie, Kamilla, Rizo:</strong> 2-Tribe Immunity (2)<br>
-                <strong>Christian, Emily:</strong> Tribal Vote (1)<br>
-                <strong>Stephanie:</strong> VTEP (1)
-            </td>
-        </tr>
-    </tbody>
-</table>
+            <tbody>
+                <tr><td>1</td><td>Genevieve</td><td>Idol Find</td><td>6</td></tr>
+                <tr><td>1</td><td>Genevieve, Chrissy, Colby, Coach, Mike, Jonathan, Dee, Charlie, Tiffany, Kamilla, Stephanie, Aubry, Angelina, Q, Kyle, Rizo</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
+                <tr><td>1</td><td>Ozzy, Devens, Joe</td><td>2-Tribe Immunity</td><td>2</td></tr>
+                <tr><td>1</td><td>Christian, Emily, Savannah</td><td>Tribal Vote</td><td>1</td></tr>
+                <tr><td>1</td><td>Cirie</td><td>Tribe Reward</td><td>1</td></tr>
+
+                <tr><td>2</td><td>Christian</td><td>Successful Idol Play + Merge</td><td>5</td></tr>
+                <tr><td>2</td><td>Aubry, Chrissy, Mike, Colby, Stephanie, Angelina, Q, Genevieve, Rizo</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
+                <tr><td>2</td><td>Cirie, Ozzy, Devens, Emily, Joe</td><td>2-Tribe Immunity</td><td>2</td></tr>
+                <tr><td>2</td><td>Coach, Jonathan, Dee, Charlie, Tiffany, Kamilla</td><td>3-Tribe Immunity (2nd)</td><td>2</td></tr>
+                <tr><td>2</td><td>Savannah</td><td>Redemption Victory</td><td>1</td></tr>
+
+                <tr><td>3</td><td>Cirie, Jonathan, Devens, Dee, Charlie, Kamilla, Rizo</td><td>Individual Immunity</td><td>4</td></tr>
+                <tr><td>3</td><td>Joe, Coach, Chrissy, Tiffany, Colby, Aubry</td><td>2-Tribe Immunity</td><td>2</td></tr>
+                <tr><td>3</td><td>Ozzy, Christian, Emily, Mike, Angelina</td><td>VTEP</td><td>1</td></tr>
+
+                <tr><td>4</td><td>Joe, Coach, Chrissy, Colby, Aubry</td><td>Individual Immunity</td><td>4</td></tr>
+                <tr><td>4</td><td>Genevieve, Tiffany</td><td>3-Tribe Immunity (1st)</td><td>3</td></tr>
+                <tr><td>4</td><td>Cirie, Devens, Jonathan, Dee, Charlie, Kamilla, Rizo</td><td>2-Tribe Immunity</td><td>2</td></tr>
+                <tr><td>4</td><td>Christian, Emily</td><td>Tribal Vote</td><td>1</td></tr>
+                <tr><td>4</td><td>Stephanie</td><td>VTEP</td><td>1</td></tr>
+            </tbody>
+        </table>
 
         <div id="roster-data">
             <div data-team="Come and Get It" data-manager="Josh">Genevieve, Q, Emily, Devens</div>
@@ -200,6 +173,7 @@
             <div data-team="B-b-b-beautiful" data-manager="Ana">Devens, Aubry, Kamilla, Jonathan</div>
             <div data-team="Outwit. Outplay. OutKast." data-manager="Eric">Joe, Q, Jonathan, Coach</div>
             <div data-team="Mike White's Fruit Flies" data-manager="CC">Kamilla, Genevieve, Dee, Emily</div>
+            <div data-team="Candice? From Raro Tribe??" data-manager="Brittany">Q, Genevieve, Charlie, Joe</div>
             <div data-team="Got Nothing For Ya" data-manager="Nitish">Devens, Christian, Genevieve, Ozzy</div>
             <div data-team="Jeff's Midlife Crisis" data-manager="Hunter">Devens, Ozzy, Jonathan, Q</div>
             <div data-team="The White Lotus" data-manager="Emma">Emily, Genevieve, Tiffany, Cirie</div>
@@ -220,23 +194,29 @@ function runTracker() {
     let maxEp = 0;
 
     const logRows = document.querySelectorAll('#master-log-table tbody tr');
-    [...logRows].forEach(row => {
+    logRows.forEach(row => {
         const c = row.cells;
         const ep = parseInt(c[0].innerText);
-        const name = c[1].innerText.trim();
+        const names = c[1].innerText.split(',').map(n => n.trim());
         const reason = c[2].innerText;
         const pts = parseInt(c[3].innerText);
 
-        if (!survivorStats[name]) survivorStats[name] = { total: 0, episodes: {} };
-        if (!survivorStats[name].episodes[ep]) survivorStats[name].episodes[ep] = { score: 0, details: [] };
-        survivorStats[name].total += pts;
-        survivorStats[name].episodes[ep].score += pts;
-        survivorStats[name].episodes[ep].details.push(`${reason} (${pts})`);
-        if (ep > maxEp) maxEp = ep;
+        names.forEach(name => {
+            if (!survivorStats[name]) survivorStats[name] = { total: 0, episodes: {} };
+            if (!survivorStats[name].episodes[ep]) survivorStats[name].episodes[ep] = { score: 0, details: [] };
+            
+            survivorStats[name].total += pts;
+            survivorStats[name].episodes[ep].score += pts;
+            survivorStats[name].episodes[ep].details.push(`${reason} (${pts})`);
+            
+            if (ep > maxEp) maxEp = ep;
 
-        if (!epActions[ep]) epActions[ep] = {};
-        if (!epActions[ep][reason]) epActions[ep][reason] = { pts: pts, survivors: [] };
-        epActions[ep][reason].survivors.push(name);
+            if (!epActions[ep]) epActions[ep] = {};
+            if (!epActions[ep][reason]) epActions[ep][reason] = { pts: pts, survivors: [] };
+            if (!epActions[ep][reason].survivors.includes(name)) {
+                epActions[ep][reason].survivors.push(name);
+            }
+        });
     });
 
     // RENDER LOG
@@ -265,7 +245,7 @@ function runTracker() {
             const epData = survivorStats[name]?.episodes[i];
             if (epData && epData.score > 0) {
                 const detailList = epData.details.map(d => `• ${d}`).join('<br>');
-                rowHtml += `<td class="point-cell num v-bar">${epData.score}<div class="tooltip"><strong style="color:var(--survivor-blue)">Ep ${i} Breakdown:</strong><br>${detailList}</div></td>`;
+                rowHtml += `<td class="point-cell num v-bar">${epData.score}<div class="tooltip"><strong>Ep ${i} Breakdown:</strong><br>${detailList}</div></td>`;
             } else {
                 rowHtml += `<td class="num v-bar" style="color:#eee">0</td>`;
             }
