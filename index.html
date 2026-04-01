@@ -3,47 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivor 50 Fantasy: Official Tracker</title>
-    <link rel="stylesheet" href="https://cdn.npm.net/npm/purecss@3.0.0/build/pure-min.css">
+    <title>Survivor 50 Fantasy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css">
+    
     <style>
-        :root { --survivor-blue: #1f8dd6; --bg: #f4f4f4; }
-        body { color: #333; background: var(--bg); font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 90vh; }
-        header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 25px; padding-bottom: 10px; }
-        h1 { margin: 0; color: var(--survivor-blue); }
+        :root { --survivor-blue: #1f8dd6; --bg: #f9f9f9; }
         
-        /* Navigation */
-        .tab-content { display: none; margin-top: 20px; }
+        /* GLOBAL FONT & ALIGNMENT */
+        body { 
+            color: #333; 
+            background: var(--bg); 
+            font-family: 'Manrope', sans-serif; 
+            padding: 20px; 
+            line-height: 1.6;
+        }
+        
+        .container { 
+            max-width: 1100px; 
+            margin: auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            min-height: 90vh; 
+        }
+
+        header { border-bottom: 2px solid var(--survivor-blue); margin-bottom: 30px; padding-bottom: 15px; text-align: center; }
+        h1 { margin: 0; color: var(--survivor-blue); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* NAVIGATION */
+        .pure-menu { display: flex; justify-content: center; margin-bottom: 30px; }
+        .tab-content { display: none; }
         .active { display: block; }
-        .pure-menu-link { cursor: pointer; font-weight: bold; }
-        .pure-menu-selected { background: var(--survivor-blue) !important; color: white !important; border-radius: 4px; }
+        .pure-menu-link { cursor: pointer; font-weight: 600; color: #555; transition: 0.2s; border-radius: 6px; margin: 0 5px; }
+        .pure-menu-selected { background: var(--survivor-blue) !important; color: white !important; }
         
-        /* Table Styling */
-        .num { text-align: right !important; font-weight: bold; }
-        .total-highlight { background-color: #eaf4ff !important; font-weight: bold; border-left: 2px solid var(--survivor-blue) !important; }
-        .voted-out { text-decoration: line-through; color: #a0a0a0 !important; opacity: 0.6; }
-        .out-badge { background: #eee; color: #666; font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; font-weight: bold; text-decoration: none !important; }
+        /* TABLE CENTERING & STYLING */
+        .pure-table { width: 100%; border-collapse: collapse; }
+        .pure-table th, .pure-table td { 
+            text-align: center !important; /* CENTER ALL DATA */
+            vertical-align: middle !important;
+            padding: 12px 8px !important;
+        }
         
-        /* Team Layout */
-        .team-title { font-size: 1.1em; font-weight: bold; color: var(--survivor-blue); display: block; }
-        .manager-sub { font-size: 0.85em; color: #666; font-style: italic; }
-        .roster-preview { font-size: 0.75em; color: #888; margin-top: 4px; }
+        .num { font-weight: 800; color: #111; }
+        .total-highlight { background-color: #f0f7ff !important; font-weight: 800; color: var(--survivor-blue); }
+        .voted-out { text-decoration: line-through; color: #bbb !important; opacity: 0.6; }
+        .out-badge { background: #f0f0f0; color: #888; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-decoration: none !important; display: inline-block; margin-top: 4px;}
+        
+        /* TEAM DISPLAY */
+        .team-title { font-size: 1.1em; font-weight: 800; color: var(--survivor-blue); display: block; }
+        .manager-sub { font-size: 0.85em; color: #777; font-style: italic; display: block; margin-bottom: 4px; }
+        .roster-preview { font-size: 0.75em; color: #999; font-weight: 400; }
 
         /* GRID HOVER TOOLTIPS */
         .point-cell { position: relative; cursor: help; }
         .tooltip {
-            visibility: hidden; width: 200px; background-color: #222; color: #fff;
-            text-align: left; border-radius: 6px; padding: 10px; position: absolute;
-            z-index: 99; bottom: 125%; left: 50%; margin-left: -100px;
-            opacity: 0; transition: opacity 0.3s; font-size: 0.8em; font-weight: normal;
-            line-height: 1.4; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            visibility: hidden; width: 220px; background-color: #1a1a1a; color: #fff;
+            text-align: left; border-radius: 8px; padding: 12px; position: absolute;
+            z-index: 99; bottom: 130%; left: 50%; transform: translateX(-50%);
+            opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.8em; font-weight: 400;
+            line-height: 1.5; pointer-events: none; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         .tooltip::after {
-            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
-            border-width: 5px; border-style: solid; border-color: #222 transparent transparent transparent;
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: #1a1a1a transparent transparent transparent;
         }
-        .point-cell:hover .tooltip { visibility: visible; opacity: 1; }
-        .point-cell:hover { background-color: #eaf4ff !important; }
+        .point-cell:hover .tooltip { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(-5px); }
+        .point-cell:hover { background-color: #f0f7ff !important; }
 
         #admin-data { display: none; }
     </style>
@@ -52,8 +83,8 @@
 
 <div class="container">
     <header>
-        <p style="margin:0; font-size: 0.8em; color: #888; text-transform: uppercase;">Fantasy League</p>
-        <h1>Survivor 50: Official Tracker</h1>
+        <p style="margin:0; font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 2px;">Survivor 50 Fantasy League</p>
+        <h1>Points Tracker</h1>
     </header>
 
     <div class="pure-menu pure-menu-horizontal">
@@ -65,22 +96,22 @@
     </div>
 
     <div id="standings" class="tab-content active">
-        <table class="pure-table pure-table-horizontal pure-table-striped" style="width:100%">
-            <thead><tr><th>Rank</th><th>Fantasy Team</th><th class="num">Total Pts</th></tr></thead>
+        <table class="pure-table pure-table-horizontal pure-table-striped">
+            <thead><tr><th>Rank</th><th>Fantasy Team</th><th>Total Pts</th></tr></thead>
             <tbody id="leaderboard-output"></tbody>
         </table>
     </div>
 
     <div id="log" class="tab-content">
-        <table class="pure-table pure-table-horizontal" style="width:100%">
-            <thead><tr><th>Ep</th><th>Survivor</th><th>Achievement</th><th class="num">Pts</th></tr></thead>
+        <table class="pure-table pure-table-horizontal">
+            <thead><tr><th>Ep</th><th>Survivor</th><th>Achievement</th><th>Pts</th></tr></thead>
             <tbody id="log-output"></tbody>
         </table>
     </div>
 
     <div id="grid" class="tab-content">
-        <div style="overflow-x: auto; padding-top: 40px;"> 
-            <table class="pure-table pure-table-bordered" style="width:100%">
+        <div style="overflow-x: auto; padding-top: 50px;"> 
+            <table class="pure-table pure-table-bordered">
                 <thead id="grid-head"></thead>
                 <tbody id="grid-body"></tbody>
             </table>
@@ -88,7 +119,7 @@
     </div>
 
     <div id="admin-data">
-        <div id="elimination-list">Jenna, Kyle, Savannah, Mike</div>
+        <div id="elimination-list">Savannah, Kyle</div>
 
         <table id="master-log-table">
             <tbody>
@@ -189,11 +220,12 @@
             <div data-team="B-b-b-beautiful" data-manager="Ana">Devens, Aubry, Kamilla, Jonathan</div>
             <div data-team="Outwit. Outplay. OutKast." data-manager="Eric">Joe, Q, Jonathan, Coach</div>
             <div data-team="Mike White's Fruit Flies" data-manager="CC">Kamilla, Genevieve, Dee, Emily</div>
+            <div data-team="Candice? From Raro Tribe??" data-manager="Brittany">Q, Genevieve, Charlie, Joe</div>
             <div data-team="Got Nothing For Ya" data-manager="Nitish">Devens, Christian, Genevieve, Ozzy</div>
             <div data-team="Jeff's Midlife Crisis" data-manager="Hunter">Devens, Ozzy, Jonathan, Q</div>
             <div data-team="The White Lotus" data-manager="Emma">Emily, Genevieve, Tiffany, Cirie</div>
             <div data-team="Rachel's Pocket Rice" data-manager="Emily R">Charlie, Kyle, Aubry, Savannah</div>
-            <div data-team="Candice? From Raro Tribe?" data-manager="Brittany R">Genevieve, Aubry, Charlie, Tiffany</div>
+            <div data-team="Candice? (2)" data-manager="Brittany R">Genevieve, Aubry, Charlie, Tiffany</div>
             <div data-team="Cancel Christmas!" data-manager="Luke R">Aubry, Jonathan, Joe, Jenna</div>
         </div>
     </div>
@@ -207,7 +239,6 @@ function runTracker() {
     const outList = document.getElementById('elimination-list').innerText.split(',').map(s => s.trim()).filter(s => s !== "");
     let maxEp = 0;
 
-    // 1. Process Logs
     const logRows = document.querySelectorAll('#master-log-table tbody tr');
     const logOutput = document.getElementById('log-output');
     logOutput.innerHTML = "";
@@ -231,7 +262,6 @@ function runTracker() {
         logOutput.innerHTML += `<tr class="${isOut ? 'voted-out' : ''}"><td>${ep}</td><td><strong>${name}</strong></td><td>${reason}</td><td class="num">${pts}</td></tr>`;
     });
 
-    // 2. Render Grid
     let gHead = '<tr><th>Survivor</th>';
     for(let i=1; i<=maxEp; i++) gHead += `<th>Ep ${i}</th>`;
     gHead += '<th class="total-highlight">Total</th></tr>';
@@ -250,7 +280,7 @@ function runTracker() {
                     <td class="point-cell num">
                         ${epData.score}
                         <div class="tooltip">
-                            <strong>Ep ${i} Breakdown:</strong><br>${detailList}
+                            <strong style="color:var(--survivor-blue)">Ep ${i} Breakdown:</strong><br>${detailList}
                         </div>
                     </td>`;
             } else {
@@ -261,7 +291,6 @@ function runTracker() {
         return `<tr>${rowHtml}</tr>`;
     }).join('');
 
-    // 3. Render Leaderboard
     const teams = [];
     document.querySelectorAll('#roster-data div').forEach(div => {
         const picks = div.innerText.split(',').map(p => p.trim());
